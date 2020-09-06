@@ -1,6 +1,6 @@
-# foo
+# Flutter Pilot
 
-A new Flutter project.
+A Flutter project, this is a pilot project. It's could provide a socket emulation.
 
 ## Getting Started
 
