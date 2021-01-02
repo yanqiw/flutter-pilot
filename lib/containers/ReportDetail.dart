@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
+import "../constants/reportType.dart";
+
 class ReportDetail extends StatefulWidget {
   final Map<String, String> reportType;
 
@@ -30,31 +32,31 @@ class _ReportDetailState extends State<ReportDetail> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-        appBar: new AppBar(
-            title: new Text(
+    return Scaffold(
+        appBar: AppBar(
+            title: Text(
           reportType["name"],
         )),
         //   body: _reportDetail(context),
         // );
-        body: new Column(children: [
-          new ListTile(
-            title: new Text(_detailDes),
+        body: Column(children: [
+          ListTile(
+            title: Text(_detailDes),
           ),
-          new Divider(),
-          new ListTile(
-            title: new Text(_detailTime),
+          Divider(),
+          ListTile(
+            title: Text(_detailTime),
           ),
-          new Divider(),
-          new Expanded(child: _reportDetail(context))
+          Divider(),
+          Expanded(child: _reportDetail(context))
         ]));
   }
 
   Widget _reportDetail(BuildContext context) {
-    return new ListView.builder(
+    return ListView.builder(
       itemCount: _detailData.length * 2,
       itemBuilder: (context, i) {
-        if (i.isOdd) return new Divider();
+        if (i.isOdd) return Divider();
         final index = i ~/ 2;
         return _buildRow(_detailData[index], context);
       },
@@ -62,20 +64,67 @@ class _ReportDetailState extends State<ReportDetail> {
   }
 
   Widget _buildRow(item, BuildContext context) {
+    String code = item["code"] as String;
+    String name = item["name"] as String;
     List<String> detail = (item["msg"] as String).split('|');
     List<Widget> line = [];
 
+    line.add(ListTile(title: Text("$code | $name")));
     detail.forEach((element) {
-      if (element.length > 0) line.add(new ListTile(title: new Text(element)));
+      if (element.length > 0) line.add(ListTile(title: Text(element)));
     });
+    line.add(ButtonBar(children: [
+      RaisedButton(
+          child: Text("DeMark 回溯"),
+          onPressed: () {
+            Navigator.push(context, MaterialPageRoute(
+              builder: (context) {
+                return Scaffold(
+                  appBar: AppBar(title: Text("DeMark 回溯")),
+                  body: Center(
+                      child: WebView(
+                    initialUrl: DEMARK_CHART_URL.replaceFirst(STOCK_NUM, code),
+                    javascriptMode: JavascriptMode.unrestricted,
+                    onWebViewCreated: (WebViewController webViewController) {
+                      _controller = webViewController;
+                    },
+                  )),
+                  bottomNavigationBar: BottomNavigationBar(
+                      items: [
+                        BottomNavigationBarItem(
+                            icon: Icon(Icons.arrow_back), title: Text("返回")),
+                        BottomNavigationBarItem(
+                            icon: Icon(Icons.arrow_forward), title: Text("前进")),
+                        BottomNavigationBarItem(
+                            icon: Icon(Icons.close), title: Text("关闭"))
+                      ],
+                      onTap: (index) {
+                        switch (index) {
+                          case 0:
+                            _controller.goBack();
+                            break;
+                          case 1:
+                            _controller.goForward();
+                            break;
+                          case 2:
+                            Navigator.pop(context);
+                            break;
+                          default:
+                        }
+                      }),
+                );
+              },
+            ));
+          })
+    ]));
 
-    return new ListTile(
-      title: new Column(children: line),
+    return ListTile(
+      title: Column(children: line),
       onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return new Scaffold(
-            appBar: new AppBar(title: new Text("详情")),
-            body: new Center(
+          return Scaffold(
+            appBar: AppBar(title: Text("详情")),
+            body: Center(
                 child: WebView(
               initialUrl: (item["url"] as String).replaceFirst("http", "https"),
               javascriptMode: JavascriptMode.unrestricted,
@@ -83,6 +132,29 @@ class _ReportDetailState extends State<ReportDetail> {
                 _controller = webViewController;
               },
             )),
+            bottomNavigationBar: BottomNavigationBar(
+                items: [
+                  BottomNavigationBarItem(
+                      icon: Icon(Icons.arrow_back), title: Text("返回")),
+                  BottomNavigationBarItem(
+                      icon: Icon(Icons.arrow_forward), title: Text("前进")),
+                  BottomNavigationBarItem(
+                      icon: Icon(Icons.close), title: Text("关闭"))
+                ],
+                onTap: (index) {
+                  switch (index) {
+                    case 0:
+                      _controller.goBack();
+                      break;
+                    case 1:
+                      _controller.goForward();
+                      break;
+                    case 2:
+                      Navigator.pop(context);
+                      break;
+                    default:
+                  }
+                }),
           );
         }));
       },
@@ -103,6 +175,8 @@ class _ReportDetailState extends State<ReportDetail> {
         (data["resultList"] as List).forEach((element) {
           _detailData.add({
             "msg": element["msg"] as String,
+            "name": element["name"] as String,
+            "code": element["code"] as String,
             "url": element["url"] as String
           });
         });

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../consistent/reportType.dart';
+import '../constants/reportType.dart';
 import './ReportDetail.dart';
+import './BackTracking.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -54,9 +55,19 @@ class _HomeState extends State<Home> {
         style: _biggerFont,
       ),
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return new ReportDetail(reportType: reportType);
-        }));
+        switch (reportType["router"]) {
+          case "BackTracking":
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return new BackTracking(reportType: reportType);
+            }));
+            break;
+          case "ReportDetail":
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return new ReportDetail(reportType: reportType);
+            }));
+            break;
+          default:
+        }
       },
     );
   }
