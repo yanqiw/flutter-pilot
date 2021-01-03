@@ -98,7 +98,7 @@ class _BackTrackingState extends State<BackTracking> {
             title: new Text("$_stockName | $_stockNumber "),
           ),
           new Divider(),
-          new Container(height: 400.0, child: _reportDetail(context))
+          new Container(height: 300.0, child: _reportDetail(context))
         ]));
   }
 
