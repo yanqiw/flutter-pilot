@@ -6,7 +6,7 @@ __用户体验与原生一致__：2017 年 Google 发布 [Flutter](https://flutt
 
 __缩短开发时间__：随着 3 年多的发展，Flutter 生态日趋完善，并已在__淘宝__，__闲鱼__和__知乎__等大型客户端上使用。随着 2.0 版本发布，Flutter 已经可以满足__电商，社交，直播，企业办公__等众多商业场景的业务需要。同时，一次开发多端发布，提升了研发效率，使__业务功能可以在 Android 和 iOS 平台同时上线__。
 
-__向未来支持全平台__：除了 Android 和 iOS 之外，Flutter 也可以在 MacOS，Linux 和 Windows 上运行。面向 5G 时代，Google 开源的物联网操作系统  [Fuchsia](https://fuchsia.dev/)  也默认支持 Flutter 应用。未来搭载 Fuchsia 系统的__智能穿戴，智能家居，智能园区，车载系统__等物联网设备上都可以直接运行Flutter应用。
+__面向未来支持全平台__：除了 Android 和 iOS 之外，Flutter 也可以在 MacOS，Linux 和 Windows 上运行。面向 5G 时代，Google 开源的物联网操作系统  [Fuchsia](https://fuchsia.dev/)  也默认支持 Flutter 应用。未来搭载 Fuchsia 系统的__智能穿戴，智能家居，智能园区，车载系统__等物联网设备上都可以直接运行Flutter应用。
 
 时至今日，Flutter 已经具备了诸多优势，并可以__帮助企业快速将服务交付给用户__。 
 
@@ -26,7 +26,7 @@ __向未来支持全平台__：除了 Android 和 iOS 之外，Flutter 也可以
 
 股票分析客户端主要从后台服务获取数据，进行处理并在页面中绘制图表。功能不多，但可以验证以上需要验证的方面。
 
-##客户端主要包括以下功能：
+## 客户端主要包括以下功能：
 投资模型列表（数据加载）：
 ![分析模型列表](https://upload-images.jianshu.io/upload_images/3265839-becac646b9f6ada0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/340)
 
