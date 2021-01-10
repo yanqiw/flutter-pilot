@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../constants/reportType.dart';
+import '../constants/ReportType.dart';
 import './ReportDetail.dart';
 import './BackTracking.dart';
 

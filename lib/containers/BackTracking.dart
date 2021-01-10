@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
-import 'package:foo/constants/reportType.dart';
+import 'package:foo/constants/ReportType.dart';
 import 'package:intl/intl.dart';
 
 class BackTracking extends StatefulWidget {
