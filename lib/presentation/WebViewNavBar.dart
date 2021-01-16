@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-class WebViewNavBar extends StatelessWidget {
-  const WebViewNavBar({
-    Key key,
-    @required WebViewController controller,
-  })  : _controller = controller,
-        super(key: key);
+abstract class WebViewNavBarDelegate {
+  WebViewController controller;
+}
 
-  final WebViewController _controller;
+class WebViewNavBar extends StatelessWidget {
+  WebViewNavBarDelegate delegateWidget;
+  WebViewNavBar({this.delegateWidget});
 
   @override
   Widget build(BuildContext context) {
@@ -23,10 +22,10 @@ class WebViewNavBar extends StatelessWidget {
         onTap: (index) {
           switch (index) {
             case 0:
-              _controller.goBack();
+              delegateWidget?.controller?.goBack();
               break;
             case 1:
-              _controller.goForward();
+              delegateWidget?.controller?.goForward();
               break;
             case 2:
               Navigator.pop(context);

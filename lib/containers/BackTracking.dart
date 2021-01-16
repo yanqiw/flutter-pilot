@@ -5,10 +5,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:foo/constants/ReportType.dart';
+import 'package:foo/models/menu.dart';
 import 'package:intl/intl.dart';
 
 class BackTracking extends StatefulWidget {
-  final Map<String, String> reportType;
+  final Menu reportType;
   BackTracking({this.reportType});
 
   @override
@@ -19,7 +20,7 @@ class BackTracking extends StatefulWidget {
 class _BackTrackingState extends State<BackTracking> {
   final HttpClient httpClient = new HttpClient();
 
-  final Map<String, String> reportType;
+  final Menu reportType;
   final bool animate;
   String _stockNumber = "000001";
   String _stockName = "平安银行";
@@ -40,7 +41,7 @@ class _BackTrackingState extends State<BackTracking> {
     return new Scaffold(
         appBar: new AppBar(
             title: new Text(
-          reportType["name"],
+          reportType.name,
         )),
         //   body: _reportDetail(context),
         // );
@@ -160,9 +161,10 @@ class _BackTrackingState extends State<BackTracking> {
   fetchData() async {
     String startDate = DateFormat("yyyy-MM-dd")
         .format(_nowDate.subtract(new Duration(days: _backDays)));
-    var uri = Uri.parse(reportType["url"]
-        .replaceFirst("STOCK_NUM", _stockNumber)
-        .replaceFirst("START_DATE", startDate));
+    var uri = Uri.parse(HOST +
+        reportType.url
+            .replaceFirst("{code}", _stockNumber)
+            .replaceFirst("startDate=", "startDate=$startDate&unUsed="));
     var request = await httpClient.getUrl(uri);
     var response = await request.close();
     if (response.statusCode == HttpStatus.ok) {

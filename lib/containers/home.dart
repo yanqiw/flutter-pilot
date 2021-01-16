@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../constants/ReportType.dart';
+
+import '../services/config.dart';
+import '../models/menu.dart';
 import './ReportDetail.dart';
 import './BackTracking.dart';
 
@@ -9,9 +11,20 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  List<Map<String, String>> _reportTypes = REPORT_TYPES;
+  List<Menu> _reportTypes;
 
   final _biggerFont = const TextStyle(fontSize: 18.0);
+
+  _HomeState() {
+    fetchMenu();
+  }
+
+  fetchMenu() async {
+    List<Menu> menu = await ConfigService.getMenu();
+    setState(() {
+      _reportTypes = menu;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +37,11 @@ class _HomeState extends State<Home> {
   }
 
   Widget _reportType(BuildContext context) {
-    return new ListView.builder(
+    if (_reportTypes == null) {
+      return Container(child: Text('loading'));
+    }
+
+    return ListView.builder(
         itemCount: _reportTypes.length * 2,
         padding: const EdgeInsets.all(16.0),
         // 对于每个建议的单词对都会调用一次itemBuilder，然后将单词对添加到ListTile行中
@@ -37,10 +54,9 @@ class _HomeState extends State<Home> {
           // 语法 "i ~/ 2" 表示i除以2，但返回值是整形（向下取整），比如i为：1, 2, 3, 4, 5
           // 时，结果为0, 1, 1, 2, 2， 这可以计算出ListView中减去分隔线后的实际单词对数量
           final index = i ~/ 2;
-          // 如果是建议列表中最后一个单词对
+          // // 如果是建议列表中最后一个单词对
           if (index >= _reportTypes.length) {
-            // ...接着再生成10个单词对，然后添加到建议列表
-            _reportTypes.addAll(REPORT_TYPES);
+            return new Divider();
           }
 
           var item = _reportTypes[index];
@@ -48,14 +64,14 @@ class _HomeState extends State<Home> {
         });
   }
 
-  Widget _buildRow(reportType, BuildContext context) {
+  Widget _buildRow(Menu reportType, BuildContext context) {
     return new ListTile(
       title: new Text(
-        reportType["name"],
+        reportType.name,
         style: _biggerFont,
       ),
       onTap: () {
-        switch (reportType["router"]) {
+        switch (reportType.router) {
           case "BackTracking":
             Navigator.push(context, MaterialPageRoute(builder: (context) {
               return new BackTracking(reportType: reportType);

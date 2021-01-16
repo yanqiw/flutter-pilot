@@ -1,6 +1,8 @@
 import 'dart:io';
-import 'dart:convert';
 
+import 'package:foo/models/analysis.dart';
+import 'package:foo/models/menu.dart';
+import 'package:foo/services/analysis.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -10,7 +12,7 @@ import "../presentation/WebViewNavBar.dart";
 import '../styles/Themes.dart';
 
 class ReportDetail extends StatefulWidget {
-  final Map<String, String> reportType;
+  final Menu reportType;
 
   ReportDetail({this.reportType});
 
@@ -19,16 +21,20 @@ class ReportDetail extends StatefulWidget {
       _ReportDetailState(reportType: reportType);
 }
 
-class _ReportDetailState extends State<ReportDetail> {
-  final Map<String, String> reportType;
+class _ReportDetailState extends State<ReportDetail>
+    implements WebViewNavBarDelegate {
+  final Menu reportType;
   final HttpClient httpClient = new HttpClient();
 
   List<Map<String, dynamic>> _detailData = [];
   String _detailDes = "";
   String _detailTime = "";
-  DateFormat formatter = new DateFormat('yyyy年MM月dd日');
+  DateFormat _formatter = new DateFormat('yyyy年MM月dd日');
 
-  WebViewController _controller;
+  // ui control
+  bool _showDes = false;
+
+  WebViewController controller;
 
   _ReportDetailState({this.reportType}) {
     fetchData();
@@ -39,7 +45,7 @@ class _ReportDetailState extends State<ReportDetail> {
     return Scaffold(
         appBar: AppBar(
             title: Text(
-          reportType["name"],
+          reportType.name,
         )),
         //   body: _reportDetail(context),
         // );
@@ -53,7 +59,16 @@ class _ReportDetailState extends State<ReportDetail> {
             child: Container(
                 padding: EdgeInsets.all(WHITE_SPACE_M),
                 child: Column(children: [
-                  Text(_detailDes),
+                  IconButton(
+                      icon: _showDes
+                          ? Icon(Icons.arrow_circle_down)
+                          : Icon(Icons.arrow_circle_up),
+                      onPressed: () {
+                        setState(() {
+                          _showDes = !_showDes;
+                        });
+                      }),
+                  _showDes ? Text(_detailDes) : Container(),
                   Text('更新时间: ' + _detailTime)
                 ])),
           ),
@@ -80,7 +95,7 @@ class _ReportDetailState extends State<ReportDetail> {
     detail.forEach((element) {
       line.add(Row(children: [
         Text(
-            "BS: ${element["setup"] > 0 ? formatter.format(DateTime.fromMillisecondsSinceEpoch(element["setup"])) : '未出现'} (${element['setupNumber']})",
+            "BS: ${element["setup"] > 0 ? _formatter.format(DateTime.fromMillisecondsSinceEpoch(element["setup"])) : '未出现'} (${element['setupNumber']})",
             style: TextStyle(
                 color: element['setupNumber'] >= 9
                     ? Colors.redAccent
@@ -90,7 +105,7 @@ class _ReportDetailState extends State<ReportDetail> {
       ]));
       line.add(Row(children: [
         Text(
-            "BC: ${element["countdown"] > 0 ? formatter.format(DateTime.fromMillisecondsSinceEpoch(element["countdown"])) : '未出现'} (${element['countdownNumber']})",
+            "BC: ${element["countdown"] > 0 ? _formatter.format(DateTime.fromMillisecondsSinceEpoch(element["countdown"])) : '未出现'} (${element['countdownNumber']})",
             style: TextStyle(fontWeight: FontWeight.bold),
             overflow: TextOverflow.clip,
             textAlign: TextAlign.start)
@@ -117,7 +132,7 @@ class _ReportDetailState extends State<ReportDetail> {
                           DEMARK_CHART_URL.replaceFirst(STOCK_NUM, code),
                       javascriptMode: JavascriptMode.unrestricted,
                       onWebViewCreated: (WebViewController webViewController) {
-                        _controller = webViewController;
+                        controller = webViewController;
                       },
                       navigationDelegate: (NavigationRequest request) {
                         setState(() {
@@ -139,7 +154,7 @@ class _ReportDetailState extends State<ReportDetail> {
                           )
                         : Container(),
                   ]),
-                  bottomNavigationBar: WebViewNavBar(controller: _controller),
+                  bottomNavigationBar: WebViewNavBar(delegateWidget: this),
                 );
               },
             ));
@@ -157,10 +172,10 @@ class _ReportDetailState extends State<ReportDetail> {
                         (item["url"] as String).replaceFirst("http", "https"),
                     javascriptMode: JavascriptMode.unrestricted,
                     onWebViewCreated: (WebViewController webViewController) {
-                      _controller = webViewController;
+                      controller = webViewController;
                     },
                   )),
-                  bottomNavigationBar: WebViewNavBar(controller: _controller),
+                  bottomNavigationBar: WebViewNavBar(delegateWidget: this),
                 );
               },
             ));
@@ -177,17 +192,12 @@ class _ReportDetailState extends State<ReportDetail> {
   }
 
   fetchData() async {
-    var uri = Uri.parse(reportType["url"]);
-    var request = await httpClient.getUrl(uri);
-    var response = await request.close();
-    if (response.statusCode == HttpStatus.ok) {
-      var json = await response.transform(utf8.decoder).join();
-      var data = jsonDecode(json);
-      if (!mounted) return;
-
+    Analysis data = await AnalysisService.getAnalysis(reportType.url);
+    if (!mounted) return;
+    if (data != null) {
       setState(() {
         _detailData.clear();
-        (data["resultList"] as List).forEach((element) {
+        data.resultList.forEach((element) {
           _detailData.add({
             "msg": element["msg"] as String,
             "name": element["name"] as String,
@@ -196,28 +206,22 @@ class _ReportDetailState extends State<ReportDetail> {
             "data": element["data"] != null ? element["data"]["flag"] : [],
           });
         });
-        // _detailData.sort((left, right) =>
-        //     (left["data"] as List).last["setup"] >
-        //     (right["data"] as List).last["setup"]);
-
         _detailData.sort((left, right) {
           if (left['data'] is List &&
               right['data'] is List &&
               (right['data'] as List).length > 0 &&
               (left['data'] as List).length > 0) {
             return (right['data'] as List)
-                .last["setup"]
-                .compareTo((left['data'] as List).last["setup"]);
+                .last["countdown"]
+                .compareTo((left['data'] as List).last["countdown"]);
           } else {
             return 1;
           }
         });
-        _detailDes = data["description"];
-        _detailTime = data["generateTime"];
+        _detailDes = data.description;
+        _detailTime = data.generateTime;
       });
     } else {
-      if (!mounted) return;
-
       setState(() {
         _detailData = [];
         _detailDes = "Error";
