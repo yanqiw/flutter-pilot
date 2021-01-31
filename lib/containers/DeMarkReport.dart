@@ -1,27 +1,28 @@
 import 'dart:io';
-import 'package:flutter/services.dart';
 
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:flutter/services.dart';
 
-import "../presentation/WebViewNavBar.dart";
+import '../constants/ReportType.dart';
+import '../presentation/WebViewNavBar.dart';
 import '../styles/Themes.dart';
 import '../models/analysis.dart';
 import '../models/menu.dart';
 import '../services/analysis.dart';
 
-class ReportDetail extends StatefulWidget {
+class DeMarkReport extends StatefulWidget {
   final Menu reportType;
 
-  ReportDetail({this.reportType});
+  DeMarkReport({this.reportType});
 
   @override
-  _ReportDetailState createState() =>
-      _ReportDetailState(reportType: reportType);
+  _DeMarkReportState createState() =>
+      _DeMarkReportState(reportType: reportType);
 }
 
-class _ReportDetailState extends State<ReportDetail>
+class _DeMarkReportState extends State<DeMarkReport>
     implements WebViewNavBarDelegate {
   final Menu reportType;
   final HttpClient httpClient = new HttpClient();
@@ -36,7 +37,7 @@ class _ReportDetailState extends State<ReportDetail>
 
   WebViewController controller;
 
-  _ReportDetailState({this.reportType}) {
+  _DeMarkReportState({this.reportType}) {
     fetchData();
   }
 
@@ -47,11 +48,10 @@ class _ReportDetailState extends State<ReportDetail>
             title: Text(
           reportType.name,
         )),
-        //   body: _reportDetail(context),
         // );
         body: Column(children: [
           Container(height: WHITE_SPACE_L),
-          Expanded(child: _reportDetail(context)),
+          Expanded(child: _DeMarkReport(context)),
           Divider(),
           Card(
             margin: EdgeInsets.all(WHITE_SPACE_S),
@@ -75,7 +75,7 @@ class _ReportDetailState extends State<ReportDetail>
         ]));
   }
 
-  Widget _reportDetail(BuildContext context) {
+  Widget _DeMarkReport(BuildContext context) {
     return ListView.builder(
       itemCount: _detailData.length,
       itemBuilder: (context, i) {
@@ -119,6 +119,49 @@ class _ReportDetailState extends State<ReportDetail>
 
     line.add(ButtonBar(children: [
       RaisedButton(
+          child: Text("DeMark 回溯"),
+          onPressed: () {
+            Navigator.push(context, MaterialPageRoute(
+              builder: (context) {
+                var isLoading = false;
+                return Scaffold(
+                  appBar: AppBar(title: Text("DeMark 回溯")),
+                  body: Stack(children: [
+                    WebView(
+                      initialUrl:
+                          DEMARK_CHART_URL.replaceFirst(STOCK_NUM, code),
+                      javascriptMode: JavascriptMode.unrestricted,
+                      onWebViewCreated: (WebViewController webViewController) {
+                        controller = webViewController;
+                        // _loadHtmlFromAssets(
+                        //     DEMARK_CHART_URL.replaceFirst(STOCK_NUM, code));
+                      },
+                      navigationDelegate: (NavigationRequest request) {
+                        setState(() {
+                          isLoading = true; // 开始访问页面，更新状态
+                        });
+                        return NavigationDecision.navigate;
+                      },
+                      onPageFinished: (String url) {
+                        setState(() {
+                          isLoading = false; // 页面加载完成，更新状态
+                        });
+                      },
+                    ),
+                    isLoading
+                        ? Container(
+                            child: Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          )
+                        : Container(),
+                  ]),
+                  bottomNavigationBar: WebViewNavBar(delegateWidget: this),
+                );
+              },
+            ));
+          }),
+      RaisedButton(
           child: Text("复制股票代码"),
           onPressed: () {
             Clipboard.setData(ClipboardData(text: item['code']));
@@ -142,13 +185,16 @@ class _ReportDetailState extends State<ReportDetail>
         _detailData.clear();
         data.resultList.forEach((element) {
           var flag = element["data"] != null ? element["data"]["flag"] : [];
-          _detailData.add({
-            "msg": element["msg"] as String,
-            "name": element["name"] as String,
-            "code": element["code"] as String,
-            "url": element["url"] as String,
-            "data": flag,
-          });
+          // 去掉后端没有 flag 的垃圾数据
+          if (flag.length > 0) {
+            _detailData.add({
+              "msg": element["msg"] as String,
+              "name": element["name"] as String,
+              "code": element["code"] as String,
+              "url": element["url"] as String,
+              "data": flag,
+            });
+          }
         });
 
         _detailData.sort((left, right) {

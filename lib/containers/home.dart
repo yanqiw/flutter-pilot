@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:grouped_list/grouped_list.dart';
+import 'package:jaguar/jaguar.dart';
+import 'package:jaguar_flutter_asset/jaguar_flutter_asset.dart';
 
+import '../styles/Themes.dart';
 import '../services/config.dart';
 import '../models/menu.dart';
 import './ReportDetail.dart';
 import './BackTracking.dart';
+import './DeMarkReport.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -14,9 +19,17 @@ class _HomeState extends State<Home> {
   List<Menu> _reportTypes;
 
   final _biggerFont = const TextStyle(fontSize: 18.0);
+  final _smallerFont = const TextStyle(fontSize: 14.0);
 
   _HomeState() {
+    List<Menu> menu = ConfigService.getLocalMenu();
+    _reportTypes = menu;
+
+    // fetch backend
     fetchMenu();
+
+    // start h5 app server
+    _startService();
   }
 
   fetchMenu() async {
@@ -30,7 +43,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: new AppBar(
-        title: new Text('股票分析'),
+        title: new Text('希望 2.0'),
       ),
       body: _reportType(context),
     );
@@ -41,50 +54,86 @@ class _HomeState extends State<Home> {
       return Container(child: Text('loading'));
     }
 
-    return ListView.builder(
-        itemCount: _reportTypes.length * 2,
-        padding: const EdgeInsets.all(16.0),
-        // 对于每个建议的单词对都会调用一次itemBuilder，然后将单词对添加到ListTile行中
-        // 在偶数行，该函数会为单词对添加一个ListTile row.
-        // 在奇数行，该函数会添加一个分割线widget，来分隔相邻的词对。
-        // 注意，在小屏幕上，分割线看起来可能比较吃力。
-        itemBuilder: (context, i) {
-          // 在每一列之前，添加一个1像素高的分隔线widget
-          if (i.isOdd) return new Divider();
-          // 语法 "i ~/ 2" 表示i除以2，但返回值是整形（向下取整），比如i为：1, 2, 3, 4, 5
-          // 时，结果为0, 1, 1, 2, 2， 这可以计算出ListView中减去分隔线后的实际单词对数量
-          final index = i ~/ 2;
-          // // 如果是建议列表中最后一个单词对
-          if (index >= _reportTypes.length) {
-            return new Divider();
-          }
-
-          var item = _reportTypes[index];
-          return _buildRow(item, context);
-        });
+    return GroupedListView(
+      // itemCount: _reportTypes.length * 2,
+      padding: const EdgeInsets.all(16.0),
+      // 对于每个建议的单词对都会调用一次itemBuilder，然后将单词对添加到ListTile行中
+      // 在偶数行，该函数会为单词对添加一个ListTile row.
+      // 在奇数行，该函数会添加一个分割线widget，来分隔相邻的词对。
+      // 注意，在小屏幕上，分割线看起来可能比较吃力。
+      itemBuilder: (context, element) {
+        return _buildRow(element, context);
+      },
+      groupBy: (element) => element.group,
+      groupSeparatorBuilder: (groupByValue) => Container(
+        alignment: Alignment.center,
+        padding: EdgeInsets.all(WHITE_SPACE_M),
+        child: Text(
+          groupByValue,
+          style: _biggerFont,
+        ),
+      ),
+      elements: _reportTypes,
+    );
   }
 
   Widget _buildRow(Menu reportType, BuildContext context) {
-    return new ListTile(
-      title: new Text(
-        reportType.name,
-        style: _biggerFont,
-      ),
+    return InkWell(
+      child: Card(
+          child: Column(children: [
+        Image.network(
+          reportType.image ?? DEFAULT_REPORT_IMG,
+          fit: BoxFit.cover,
+          height: 200,
+          width: double.infinity,
+        ),
+        Container(
+            padding: EdgeInsets.all(WHITE_SPACE_M),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(), // fill width
+                Text(
+                  reportType.name,
+                  style: _biggerFont,
+                ),
+                Text(
+                  reportType.description ?? '',
+                  style: _smallerFont,
+                ),
+              ],
+            )),
+      ])),
       onTap: () {
-        switch (reportType.router) {
-          case "BackTracking":
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return new BackTracking(reportType: reportType);
-            }));
-            break;
-          case "ReportDetail":
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return new ReportDetail(reportType: reportType);
-            }));
-            break;
-          default:
-        }
+        router(reportType, context);
       },
     );
+  }
+
+  _startService() async {
+    final server = Jaguar(address: "127.0.0.1", port: 8008);
+    server.addRoute(serveFlutterAssets());
+    await server.serve(logRequests: true);
+  }
+
+  void router(Menu reportType, BuildContext context) {
+    switch (reportType.router) {
+      case "BackTracking":
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return new BackTracking(reportType: reportType);
+        }));
+        break;
+      case "ReportDetail":
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return new ReportDetail(reportType: reportType);
+        }));
+        break;
+      case "DeMarkReport":
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return new DeMarkReport(reportType: reportType);
+        }));
+        break;
+      default:
+    }
   }
 }
