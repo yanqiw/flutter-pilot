@@ -23,12 +23,12 @@ platform :android do
 
   desc "Submit a new Beta Build to Crashlytics Beta"
   lane :beta do
-    gradle(task: "clean assembleRelease")
+    # gradle(task: "clean assembleRelease")
     # crashlytics
     
     # sh "your_script.sh"
     # You can also use other beta testing services here
-    pgyer(api_key: "7c468df6706b83f56b176c25c08afa39", user_key: "3c685df67608e16a5a24de1cb5bba3b9",apk:"../build/app/outputs/apk/release/app-release.apk")
+    pgyer(api_key: "$PGYER_APP_KEY", user_key: "$PGYER_USER_KEY",apk:"../build/app/outputs/apk/release/app-release.apk")
 
   end
 
