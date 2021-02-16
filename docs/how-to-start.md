@@ -27,7 +27,7 @@
 单元测试参考[单元测试介绍](https://flutter.cn/docs/cookbook/testing/unit/introduction)进行。目前，测试用例有待补充。
 
 ## 运行
-运行架构借鉴 RN 项目中经典的[“presentation”和“containers”模式(Dan的博客有详细阐述，需要解决网络问题)](https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0)模式，同时抽象出服务层和模型层。
+运行架构借鉴 RN 项目中经典的[“presentation”和“containers”模式(Dan的博客有详细阐述，需要解决网络问题)](https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0)，同时抽象出服务层和模型层。
 具体可以参考[项目源代码](https://github.com/yanqiw/hope2)
 
 ## 运维
