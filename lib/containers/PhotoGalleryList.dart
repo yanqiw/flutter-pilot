@@ -52,26 +52,6 @@ class _PhotoGalleryListState extends State<PhotoGalleryList>
         body: Column(children: [
           Container(height: WHITE_SPACE_L),
           Expanded(child: _PhotoGalleryList(context)),
-          Divider(),
-          Card(
-            margin: EdgeInsets.all(WHITE_SPACE_S),
-            clipBehavior: Clip.antiAlias,
-            child: Container(
-                padding: EdgeInsets.all(WHITE_SPACE_M),
-                child: Column(children: [
-                  IconButton(
-                      icon: _showDes
-                          ? Icon(Icons.arrow_circle_down)
-                          : Icon(Icons.arrow_circle_up),
-                      onPressed: () {
-                        setState(() {
-                          _showDes = !_showDes;
-                        });
-                      }),
-                  _showDes ? Text(_detailDes) : Container(),
-                  Text('更新时间: ' + _detailTime)
-                ])),
-          ),
         ]));
   }
 
@@ -79,36 +59,50 @@ class _PhotoGalleryListState extends State<PhotoGalleryList>
     return ListView.builder(
       itemCount: _detailData.length,
       itemBuilder: (context, i) {
-        return _buildRow(_detailData[i], context);
+        return _buildRow(_detailData[i], context, i);
       },
     );
   }
 
-  Widget _buildRow(item, BuildContext context) {
+  Widget _buildRow(item, BuildContext context, int index) {
     String key = item["key"] as String;
+    key = key.replaceFirst("resources/zhihu-images/", "");
     List<Widget> line = [];
 
     line.add(Container(child: SectionTitle(title: "$key")));
     bool isImage = item["link"].indexOf(".jpg") > -1;
-    print(item["link"]);
+    bool isZhihuLink = item["zhihuLink"] != "";
+    bool isAnswer = !isImage && (item["zhihuLink"].indexOf("answer") > -1);
+
     if (isImage) {
       // display image
       line.add(Container(
-        child:
-            //     WebView(
-            //   initialUrl: item["link"],
-            // )
-            ExtendedImage.network(
+        child: ExtendedImage.network(
           item["link"] ?? DEFAULT_REPORT_IMG,
-          height: 600,
+          height: 550,
           fit: BoxFit.fitWidth,
           cache: true,
         ),
       ));
     }
 
+    if (isAnswer) {
+      if (item["thumb"] == null) {
+        fetchFirstImage(item["link"] as String, index);
+      }
+      line.add(Container(
+        child: ExtendedImage.network(
+          item["thumb"] ?? DEFAULT_REPORT_IMG,
+          height: 550,
+          fit: BoxFit.fitWidth,
+          cache: true,
+        ),
+      ));
+    }
+
+    // action bar
     line.add(ButtonBar(children: [
-      RaisedButton(
+      ElevatedButton(
           child: Text(isImage ? "下载" : "打开"),
           onPressed: isImage
               ? () {
@@ -116,16 +110,51 @@ class _PhotoGalleryListState extends State<PhotoGalleryList>
                 }
               : () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    Menu report =
-                        new Menu(url: item["link"], name: item["key"]);
+                    Menu report = new Menu(url: item["link"], name: key);
                     return new PhotoGalleryList(reportType: report);
                   }));
                 }),
-      RaisedButton(
-          child: Text("打开知乎"),
-          onPressed: () {
-            print("打开知乎");
-          })
+      ElevatedButton(
+          child: Text(isZhihuLink ? "打开知乎" : "无链接"),
+          onPressed: isZhihuLink
+              ? () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    var isLoading = false;
+                    return Scaffold(
+                      appBar: AppBar(title: Text("知乎")),
+                      body: Stack(children: [
+                        WebView(
+                          initialUrl: item["zhihuLink"],
+                          javascriptMode: JavascriptMode.unrestricted,
+                          onWebViewCreated:
+                              (WebViewController webViewController) {
+                            controller = webViewController;
+                          },
+                          navigationDelegate: (NavigationRequest request) {
+                            setState(() {
+                              isLoading = true; // 开始访问页面，更新状态
+                            });
+                            return NavigationDecision.navigate;
+                          },
+                          onPageFinished: (String url) {
+                            setState(() {
+                              isLoading = false; // 页面加载完成，更新状态
+                            });
+                          },
+                        ),
+                        isLoading
+                            ? Container(
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              )
+                            : Container(),
+                      ]),
+                      bottomNavigationBar: WebViewNavBar(delegateWidget: this),
+                    );
+                  }));
+                }
+              : () {})
     ]));
 
     return Container(
@@ -169,6 +198,16 @@ class _PhotoGalleryListState extends State<PhotoGalleryList>
       });
     }
   }
+
+  fetchFirstImage(String url, int index) async {
+    List data = await PhotoGalleryService.getList(url);
+    if (!mounted) return;
+    if (data != null && data.length > 0) {
+      setState(() {
+        _detailData[index]["thumb"] = data[0].link as String;
+      });
+    }
+  }
 }
 
 class SectionTitle extends StatelessWidget {
@@ -185,7 +224,7 @@ class SectionTitle extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(4, 4, 4, 12),
       child: Align(
         alignment: Alignment.centerLeft,
-        child: Text(title, style: Theme.of(context).textTheme.subtitle1),
+        child: Text(title, style: Theme.of(context).textTheme.headline6),
       ),
     );
   }

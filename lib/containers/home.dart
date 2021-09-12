@@ -1,3 +1,4 @@
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:foo/containers/PhotoGalleryList.dart';
 import 'package:grouped_list/grouped_list.dart';
@@ -82,11 +83,12 @@ class _HomeState extends State<Home> {
     return InkWell(
       child: Card(
           child: Column(children: [
-        Image.network(
+        ExtendedImage.network(
           reportType.image ?? DEFAULT_REPORT_IMG,
           fit: BoxFit.cover,
           height: 200,
           width: double.infinity,
+          cache: true,
         ),
         Container(
             padding: EdgeInsets.all(WHITE_SPACE_M),
