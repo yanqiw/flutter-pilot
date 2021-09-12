@@ -12,16 +12,6 @@ const MEMU_URL = "$HOST/menu.json";
 
 const REPORT_TYPES = [
   {
-    "id": 'photoGallery',
-    "group": '0_其他',
-    "version": 1,
-    "name": "相册",
-    "router": "PhotoGallery",
-    "url": "/question?bucket=zhihu-spider&prefix=resources/zhihu-images/",
-    "image": "https://s3.ax1x.com/2021/01/12/sYRCbq.png",
-    "description": "一些好看的图片"
-  },
-  {
     "id": 'demark20',
     "group": 'DeMark',
     "version": 1,
