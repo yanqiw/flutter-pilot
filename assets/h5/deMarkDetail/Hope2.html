@@ -14,200 +14,356 @@
     <script src="./Hope2_files/exporting.js"></script>
     <script src="./Hope2_files/data.js"></script>
     <script type="text/javascript">
-      var chart;
+      // var chart;
       var path = window.document.location.href;
       var code = path.split("?")[1].split("=")[1];
-      var flagLink = "https://hope2.qianyitian.com/demark-backtrack/" + code;
+      var flagLink = "https://www.qianyitian.com/demark-backtrack/" + code;
+      // var flagLink = 'http://127.0.0.1:8003/demark-backtrack/' + code;
       $(document).ready(function () {
-        var chart = createChart();
-        var flagsData = getFlagsData(flagLink, chart);
+        post();
       });
-      function post() {
-        var days = $("#days").val();
-        var linkNew = flagLink + "?days2Now=" + days;
-        var flagsData = getFlagsData(linkNew, chart);
-      }
-      function createChart() {
-        // Create the chart
-        chart = Highcharts.stockChart("chart-container", {
-          rangeSelector: {
-            selected: 4,
-          },
-          title: {
-            text: "",
-          },
-          yAxis: {
-            title: {
-              text: "Price",
+
+      var profitOptions = {
+        chart: {
+          zoomType: null,
+          // pinchType: null
+        },
+        rangeSelector: {
+          selected: 5,
+        },
+        title: {
+          text: "定投收益率比较",
+        },
+        yAxis: {
+          labels: {
+            formatter: function () {
+              return (this.value > 0 ? " + " : "") + this.value + "%";
             },
           },
-          plotOptions: {
-            //修改蜡烛颜色
-            candlestick: {
-              color: "#33AA11",
-              upColor: "#DD2200",
-              lineColor: "#33AA11",
-              upLineColor: "#DD2200",
-              maker: {
-                states: {
-                  hover: {
-                    enabled: false,
-                  },
-                },
-              },
-            },
-          },
-          series: [
+          plotLines: [
             {
-              type: "candlestick",
-              name: "stock name",
-              data: [],
-              id: "dataseries",
-              tooltip: {
-                valueDecimals: 2,
-              },
-            },
-            {
-              type: "flags",
-              data: null,
-              onSeries: "dataseries",
-              shape: "circlepin",
-              width: 16,
-              color: "#e97b25",
-              fillColor: "#e97b25",
-              style: {
-                // text style
-                color: "white",
-              },
-              visible: $("#bsCheckbox").is(":checked"),
-            },
-            {
-              type: "flags",
-              data: null,
-              onSeries: "dataseries",
-              shape: "circlepin",
-              width: 16,
-              color: "#ef270d",
-              fillColor: "#ef270d",
-              style: {
-                // text style
-                color: "white",
-              },
-              visible: $("#bcCheckbox").is(":checked"),
-            },
-            {
-              type: "flags",
-              data: null,
-              onSeries: "dataseries",
-              shape: "squarepin",
-              width: 16,
-              color: "#0def73",
-              fillColor: "#0def73",
-              style: {
-                // text style
-                color: "white",
-              },
-              visible: $("#ssCheckbox").is(":checked"),
-            },
-            {
-              type: "flags",
-              data: null,
-              onSeries: "dataseries",
-              shape: "squarepin",
-              width: 16,
-              color: "#0a8ff1",
-              fillColor: "#0a8ff1",
-              style: {
-                // text style
-                color: "white",
-              },
-              visible: $("#scCheckbox").is(":checked"),
+              value: 0,
+              width: 3,
+              color: "silver",
             },
           ],
-        });
-        return chart;
+        },
+        plotOptions: {
+          series: {
+            // compare: 'percent',
+            showInNavigator: true,
+            animation: {
+              duration: 15000,
+            },
+          },
+        },
+        tooltip: {
+          pointFormat:
+            '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b>%<br/>',
+          valueDecimals: 2,
+          followTouchMove: false,
+          split: true,
+        },
+
+        series: [
+          {
+            type: "line",
+            name: "DeMark收益率",
+            data: [],
+            id: "dataseries",
+            color: "#f18b43",
+            tooltip: {
+              valueDecimals: 2,
+            },
+            threshold: null,
+          },
+          {
+            type: "line",
+            name: "每日定投收益率",
+            data: [],
+            id: "dataseries2",
+            color: "#71984d",
+            tooltip: {
+              valueDecimals: 2,
+            },
+
+            threshold: null,
+          },
+          {
+            type: "line",
+            name: "每周定投收益率",
+            data: [],
+            id: "dataseries2",
+            color: "#063f9b",
+            tooltip: {
+              valueDecimals: 2,
+            },
+            threshold: null,
+          },
+          {
+            type: "line",
+            name: "每月定投收益率",
+            data: [],
+            id: "dataseries2",
+            color: "#020a16",
+            tooltip: {
+              valueDecimals: 2,
+            },
+            threshold: null,
+          },
+        ],
+      };
+
+      var stockOptions = {
+        rangeSelector: {
+          selected: 4,
+        },
+        title: {
+          text: "",
+        },
+        yAxis: [
+          {
+            title: {
+              text: "价格",
+            },
+            plotLines: [
+              {
+                id: "costPrice",
+                value: 0,
+                color: "#33AA11",
+                dashStyle: "shortdash",
+                width: 2,
+                label: {
+                  text: "Demark",
+                },
+              },
+              {
+                id: "averagePrice",
+                value: 0,
+                color: "#DD2200",
+                dashStyle: "shortdash",
+                width: 2,
+                label: {
+                  text: "平均定投",
+                },
+              },
+            ],
+          },
+        ],
+        plotOptions: {
+          series: {
+            label: {
+              connectorAllowed: true,
+            },
+            animation: {
+              // duration: 10000
+            },
+          },
+        },
+        series: [
+          {
+            type: "candlestick",
+            name: "stock name",
+            color: "green",
+            lineColor: "green",
+            upColor: "red",
+            upLineColor: "red",
+            navigatorOptions: {
+              color: Highcharts.getOptions().colors[0],
+            },
+            data: [],
+            id: "dataseries",
+            tooltip: {
+              valueDecimals: 2,
+            },
+          },
+          {
+            type: "flags",
+            data: null,
+            onSeries: "dataseries",
+            shape: "circlepin",
+            width: 16,
+            color: "#e97b25",
+            fillColor: "#e97b25",
+            style: {
+              // text style
+              color: "white",
+            },
+            visible: $("#bsCheckbox").is(":checked"),
+          },
+          {
+            type: "flags",
+            data: null,
+            onSeries: "dataseries",
+            shape: "circlepin",
+            width: 16,
+            color: "#ef270d",
+            fillColor: "#ef270d",
+            style: {
+              // text style
+              color: "white",
+            },
+            visible: $("#bcCheckbox").is(":checked"),
+          },
+          {
+            type: "flags",
+            data: null,
+            onSeries: "dataseries",
+            shape: "squarepin",
+            width: 16,
+            color: "#0def73",
+            fillColor: "#0def73",
+            style: {
+              // text style
+              color: "white",
+            },
+            visible: $("#ssCheckbox").is(":checked"),
+          },
+          {
+            type: "flags",
+            data: null,
+            onSeries: "dataseries",
+            shape: "squarepin",
+            width: 16,
+            color: "#0a8ff1",
+            fillColor: "#0a8ff1",
+            style: {
+              // text style
+              color: "white",
+            },
+            visible: $("#scCheckbox").is(":checked"),
+          },
+        ],
+      };
+
+      function createProfitChart(data) {
+        profitOptions.series[0].data = data.profit1.profits;
+        profitOptions.series[1].data = data.profit2.profits;
+        profitOptions.series[2].data = data.profit3.profits;
+        profitOptions.series[3].data = data.profit4.profits;
+        // profitOptions.plotOptions.series.animation.duration=10000;
+        profitChart = Highcharts.stockChart("profit-container", profitOptions);
+        var v = profitOptions;
       }
 
-      function getFlagsData(link, chart) {
+      function post() {
+        var days = $("#days").val();
+        var rehabilitation = $(
+          'input:radio[name="rehabilitation"]:checked'
+        ).val();
+        var linkNew =
+          flagLink + "?days2Now=" + days + "&rehabilitation=" + rehabilitation;
+        getFlagsData(linkNew);
+      }
+
+      function createChart(data) {
+        var setupFlag = [];
+        var countdownFlag = [];
+        if (data.flag != null) {
+          for (var i = 0; i < data.flag.length; i++) {
+            //准备setup 数据
+            var setupObj = {};
+            setupObj.x = data.flag[i].setup;
+            setupObj.title = "BS";
+            setupObj.text =
+              "(" +
+              data.flag[i].setupNumber +
+              "T,Setup) " +
+              data.flag[i].setupDate;
+            setupFlag.push(setupObj);
+            //准备countdown 数据
+            var countdownObj = {};
+            countdownObj.x = data.flag[i].countdown;
+            countdownObj.title = "BC";
+            countdownObj.text =
+              "(" +
+              data.flag[i].countdownNumber +
+              "T,Countdown) " +
+              data.flag[i].countdownDate;
+            countdownFlag.push(countdownObj);
+          }
+        }
+        var sellSetupFlag = [];
+        var sellCountdownFlag = [];
+        if (data.flagSell != null) {
+          for (var i = 0; i < data.flagSell.length; i++) {
+            //准备setup 数据
+            var setupObj = {};
+            setupObj.x = data.flagSell[i].setup;
+            setupObj.title = "SS";
+            setupObj.text =
+              "(" +
+              data.flagSell[i].setupNumber +
+              "T,Setup) " +
+              data.flagSell[i].setupDate;
+            sellSetupFlag.push(setupObj);
+            //准备countdown 数据
+            var countdownObj = {};
+            countdownObj.x = data.flagSell[i].countdown;
+            countdownObj.title = "SC";
+            countdownObj.text =
+              "(" +
+              data.flagSell[i].countdownNumber +
+              "T,Countdown) " +
+              data.flagSell[i].countdownDate;
+            sellCountdownFlag.push(countdownObj);
+          }
+        }
+
+        stockOptions.title.text = data.name + " " + data.code;
+
+        //bars
+        // var bars = data.bars;
+        // var lines = [];
+        // var dataLength = bars.length;
+        // for (i = 0; i < dataLength; i++) {
+        //     lines.push([
+        //         bars[i][0], // the date
+        //         bars[i][4] // close
+        //     ]);
+        // }
+        // lineData = lines;
+
+        stockOptions.series[0].name = data.name;
+        stockOptions.series[0].data = data.bars;
+
+        //flags
+        stockOptions.series[1].data = setupFlag;
+        stockOptions.series[2].data = countdownFlag;
+        stockOptions.series[3].data = sellSetupFlag;
+        stockOptions.series[4].data = sellCountdownFlag;
+
+        stockOptions.series[1].visible = $("#bsCheckbox").is(":checked");
+        stockOptions.series[2].visible = $("#bcCheckbox").is(":checked");
+        stockOptions.series[3].visible = $("#ssCheckbox").is(":checked");
+        stockOptions.series[4].visible = $("#scCheckbox").is(":checked");
+
+        //成本价格线
+        if (data.profit1 != null) {
+          stockOptions.yAxis[0].plotLines[0].value =
+            data.profit1.averageCostPrice;
+          stockOptions.yAxis[0].plotLines[0].label.text =
+            "DeMark定投成本价格" +
+            data.profit1.averageCostPrice.toFixed(2) +
+            "元";
+        }
+        if (data.profit2 != null) {
+          stockOptions.yAxis[0].plotLines[1].value =
+            data.profit2.averageCostPrice;
+          stockOptions.yAxis[0].plotLines[1].label.text =
+            "平均定投成本价格" +
+            data.profit2.averageCostPrice.toFixed(2) +
+            "元";
+        }
+
+        // stockOptions.plotOptions.series.animation.duration=10000;
+        chart = Highcharts.stockChart("container", stockOptions);
+      }
+
+      function getFlagsData(link) {
         Highcharts.getJSON(link, function (data) {
-          var setupFlag = [];
-          var countdownFlag = [];
-          if (data.flag != null) {
-            for (var i = 0; i < data.flag.length; i++) {
-              //准备setup 数据
-              var setupObj = {};
-              setupObj.x = data.flag[i].setup;
-              setupObj.title = "BS";
-              setupObj.text =
-                "(" +
-                data.flag[i].setupNumber +
-                "T,Setup) " +
-                data.flag[i].setupDate;
-              setupFlag.push(setupObj);
-              //准备countdown 数据
-              var countdownObj = {};
-              countdownObj.x = data.flag[i].countdown;
-              countdownObj.title = "BC";
-              countdownObj.text =
-                "(" +
-                data.flag[i].countdownNumber +
-                "T,Countdown) " +
-                data.flag[i].countdownDate;
-              countdownFlag.push(countdownObj);
-            }
-          }
-          var sellSetupFlag = [];
-          var sellCountdownFlag = [];
-          if (data.flagSell != null) {
-            for (var i = 0; i < data.flagSell.length; i++) {
-              //准备setup 数据
-              var setupObj = {};
-              setupObj.x = data.flagSell[i].setup;
-              setupObj.title = "SS";
-              setupObj.text =
-                "(" +
-                data.flagSell[i].setupNumber +
-                "T,Setup) " +
-                data.flagSell[i].setupDate;
-              sellSetupFlag.push(setupObj);
-              //准备countdown 数据
-              var countdownObj = {};
-              countdownObj.x = data.flagSell[i].countdown;
-              countdownObj.title = "SC";
-              countdownObj.text =
-                "(" +
-                data.flagSell[i].countdownNumber +
-                "T,Countdown) " +
-                data.flagSell[i].countdownDate;
-              sellCountdownFlag.push(countdownObj);
-            }
-          }
-
-          //title
-          var title = {
-            text: data.name + " " + data.code,
-          };
-          chart.setTitle(title);
-
-          //bars
-          // var bars = data.bars;
-          // var lines = [];
-          // var dataLength = bars.length;
-          // for (i = 0; i < dataLength; i++) {
-          //     lines.push([
-          //         bars[i][0], // the date
-          //         bars[i][4] // close
-          //     ]);
-          // }
-          // lineData = lines;
-          chart.series[0].setName(data.name);
-          chart.series[0].setData(data.bars);
-
-          //flags
-          chart.series[1].setData(setupFlag);
-          chart.series[2].setData(countdownFlag);
-          chart.series[3].setData(sellSetupFlag);
-          chart.series[4].setData(sellCountdownFlag);
+          createChart(data);
+          createProfitChart(data);
         });
       }
 
@@ -222,20 +378,24 @@
           chart.series[4].setVisible(selected);
         }
       }
-
-      function radioOnclick(checkboxId, selected) {
-        if (checkboxId == "candlestick" && selected) {
-          chart.series[1].type = "candlestick";
-          chart.series[1].setData(barData);
-        } else {
-          chart.series[1].type = "line";
-          chart.series[1].setData(lineData);
-        }
-      }
     </script>
   </head>
 
   <body class="layout-default">
+    <nav id="navbar" class="bd-navbar navbar has-shadow is-spaced">
+      <div class="container">
+        <div class="navbar-brand">
+          <a class="navbar-item" href="https://qianyitian.com/">
+            <img
+              style="height: 36px; width: 36px"
+              src="https://img.qianyitian.com/icon/logo.png"
+            />
+            <h4 class="title is-3">Hope2</h4>
+          </a>
+        </div>
+      </div>
+    </nav>
+
     <section class="section">
       <div class="container">
         <div class="columns">
@@ -254,9 +414,7 @@
             </div>
             <div class="field is-grouped">
               <div class="control">
-                <button class="button is-link" onclick="post()">
-                  开始计算
-                </button>
+                <button class="button is-link" onclick="post()">Submit</button>
               </div>
             </div>
           </div>
@@ -291,6 +449,7 @@
                 </div>
               </div>
             </div>
+
             <div class="field-body">
               <div class="field">
                 <div class="control">
@@ -321,15 +480,52 @@
             </div>
           </div>
           <div class="column is-1"></div>
+          <div class="column is-2">
+            <div class="field-body">
+              <div class="field">
+                <div class="control">
+                  <label class="radio">
+                    <input
+                      type="radio"
+                      name="rehabilitation"
+                      value="non"
+                      onclick="post()"
+                      checked
+                    />
+                    不复权
+                  </label>
+                  <label class="radio">
+                    <input
+                      type="radio"
+                      name="rehabilitation"
+                      value="ea"
+                      onclick="post()"
+                    />
+                    前复权
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
     <hr />
     <section class="section">
       <div class="container">
-        <div id="chart-container"></div>
+        <div id="container"></div>
       </div>
     </section>
+
+    <section class="section">
+      <div class="container">
+        <div
+          id="profit-container"
+          style="min-width: 400px; height: 400px"
+        ></div>
+      </div>
+    </section>
+
     <hr />
   </body>
 </html>

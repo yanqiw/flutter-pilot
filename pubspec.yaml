@@ -32,8 +32,10 @@ dependencies:
   charts_flutter: ^0.9.0
   json_annotation: ^3.0.0
   grouped_list: ^3.7.1
-  jaguar: ^2.4.46
-  jaguar_flutter_asset: ^2.2.0
+  jaguar: ^3.0.0
+  jaguar_flutter_asset: ^3.0.0
+  extended_image: ^4.0.0
+  image_picker_saver: ^0.3.0
 
 dev_dependencies:
   flutter_test:

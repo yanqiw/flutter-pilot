@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:foo/containers/PhotoGalleryList.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:jaguar/jaguar.dart';
 import 'package:jaguar_flutter_asset/jaguar_flutter_asset.dart';
@@ -26,7 +27,7 @@ class _HomeState extends State<Home> {
     _reportTypes = menu;
 
     // fetch backend
-    fetchMenu();
+    // fetchMenu();
 
     // start h5 app server
     _startService();
@@ -131,6 +132,11 @@ class _HomeState extends State<Home> {
       case "DeMarkReport":
         Navigator.push(context, MaterialPageRoute(builder: (context) {
           return new DeMarkReport(reportType: reportType);
+        }));
+        break;
+      case "PhotoGallery":
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return new PhotoGalleryList(reportType: reportType);
         }));
         break;
       default:

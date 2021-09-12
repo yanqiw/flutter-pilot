@@ -1,15 +1,26 @@
 const STOCK_NUM = "STOCK_NUM";
 const START_DATE = "START_DATE";
 
-const HOST = "https://hope2.qianyitian.com";
+const HOST = "https://www.qianyitian.com";
+const PHOTO_GALLERY_HOST = "http://photo-gallery.yanqiw.qianyitian.com";
 // const DEMARK_CHART_URL = "$HOST/demark-flag.html?code=$STOCK_NUM";
 const DEMARK_CHART_URL =
     "http://127.0.0.1:8008/h5/deMarkDetail/Hope2.html?code=$STOCK_NUM";
 const SEARCH_STOCK_URL =
-    "http://hope2.qianyitian.com:8002/search?word=$STOCK_NUM";
+    "http://www.qianyitian.com:8002/search?word=$STOCK_NUM";
 const MEMU_URL = "$HOST/menu.json";
 
 const REPORT_TYPES = [
+  {
+    "id": 'photoGallery',
+    "group": '0_其他',
+    "version": 1,
+    "name": "相册",
+    "router": "PhotoGallery",
+    "url": "/question?bucket=zhihu-spider&prefix=resources/zhihu-images/",
+    "image": "https://s3.ax1x.com/2021/01/12/sYRCbq.png",
+    "description": "一些好看的图片"
+  },
   {
     "id": 'demark20',
     "group": 'DeMark',
