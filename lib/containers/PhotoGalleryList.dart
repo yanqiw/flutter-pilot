@@ -6,6 +6,7 @@ import 'package:image_picker_saver/image_picker_saver.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import "../presentation/WebViewNavBar.dart";
 import '../styles/Themes.dart';
@@ -87,8 +88,13 @@ class _PhotoGalleryListState extends State<PhotoGalleryList>
     }
 
     if (isAnswer) {
-      if (item["thumb"] == null) {
+      if (null == item["thumb"]) {
         fetchFirstImage(item["link"] as String, index);
+      }
+      if (null != item["count"]) {
+        line.add(Container(
+          child: Text("共 " + item["count"] + " 张"),
+        ));
       }
       line.add(Container(
         child: ExtendedImage.network(
@@ -131,6 +137,10 @@ class _PhotoGalleryListState extends State<PhotoGalleryList>
                             controller = webViewController;
                           },
                           navigationDelegate: (NavigationRequest request) {
+                            print(request.url);
+                            if (request.url.indexOf("http") == -1) {
+                              _launchURL(request.url);
+                            }
                             setState(() {
                               isLoading = true; // 开始访问页面，更新状态
                             });
@@ -173,7 +183,7 @@ class _PhotoGalleryListState extends State<PhotoGalleryList>
     return filePath != null && filePath != "";
   }
 
-  fetchData() async {
+  void fetchData() async {
     List data = await PhotoGalleryService.getList(reportType.url);
     if (!mounted) return;
     if (data != null) {
@@ -199,15 +209,19 @@ class _PhotoGalleryListState extends State<PhotoGalleryList>
     }
   }
 
-  fetchFirstImage(String url, int index) async {
+  void fetchFirstImage(String url, int index) async {
     List data = await PhotoGalleryService.getList(url);
     if (!mounted) return;
     if (data != null && data.length > 0) {
       setState(() {
         _detailData[index]["thumb"] = data[0].link as String;
+        _detailData[index]["count"] = data.length.toString();
       });
     }
   }
+
+  void _launchURL(url) async =>
+      await canLaunch(url) ? await launch(url) : throw 'Could not launch $url';
 }
 
 class SectionTitle extends StatelessWidget {
