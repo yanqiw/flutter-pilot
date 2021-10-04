@@ -25,4 +25,19 @@ class PhotoGalleryService {
 
     return keyList;
   }
+
+  static Future<bool> downloadDetail(String url) async {
+    if (url.indexOf("http") == -1) {
+      return false;
+    }
+
+    var uri = Uri.parse(PHOTO_GALLERY_DOWNLOAD_URL + url);
+    var request = await httpClient.getUrl(uri);
+    var response = await request.close();
+    if (response.statusCode == HttpStatus.ok) {
+      return true;
+    }
+
+    return false;
+  }
 }

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:extended_image/extended_image.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:foo/services/photoGallery.dart';
 import 'package:image_picker_saver/image_picker_saver.dart';
 
@@ -28,13 +29,11 @@ class _PhotoGalleryListState extends State<PhotoGalleryList>
   final HttpClient httpClient = new HttpClient();
 
   List<Map<String, dynamic>> _detailData = [];
-  String _detailDes = "";
-  String _detailTime = "";
-  DateFormat _formatter = new DateFormat('yyyy年MM月dd日');
+  String _detailUrl = "";
 
   // ui control
   bool _showDes = false;
-
+  TextEditingController _textController = TextEditingController();
   WebViewController controller;
 
   _PhotoGalleryListState({this.reportType}) {
@@ -53,6 +52,48 @@ class _PhotoGalleryListState extends State<PhotoGalleryList>
         body: Column(children: [
           Container(height: WHITE_SPACE_L),
           Expanded(child: _PhotoGalleryList(context)),
+          Card(
+            margin: EdgeInsets.all(WHITE_SPACE_S),
+            clipBehavior: Clip.antiAlias,
+            child: Container(
+                padding: EdgeInsets.all(WHITE_SPACE_M),
+                child: Column(children: [
+                  IconButton(
+                      icon: _showDes
+                          ? Icon(Icons.arrow_circle_down)
+                          : Icon(Icons.arrow_circle_up),
+                      onPressed: () {
+                        setState(() {
+                          _showDes = !_showDes;
+                        });
+                      }),
+                  _showDes
+                      ? Container(
+                          child: Column(
+                          children: [
+                            TextField(
+                              controller: _textController,
+                              onChanged: (v) {
+                                _detailUrl = v;
+                              },
+                              decoration: InputDecoration(
+                                prefixIcon: Icon(Icons.link),
+                                suffixIcon: IconButton(
+                                  onPressed: _textController.clear,
+                                  icon: Icon(Icons.clear),
+                                ),
+                              ),
+                            ),
+                            ElevatedButton(
+                                child: Text("下载"),
+                                onPressed: () {
+                                  downloadDetail(_detailUrl);
+                                })
+                          ],
+                        ))
+                      : Container(),
+                ])),
+          ),
         ]));
   }
 
@@ -183,6 +224,15 @@ class _PhotoGalleryListState extends State<PhotoGalleryList>
     return filePath != null && filePath != "";
   }
 
+  void downloadDetail(url) async {
+    bool res = await PhotoGalleryService.downloadDetail(url);
+    if (res) {
+      Fluttertoast.showToast(msg: "成功", backgroundColor: Colors.green);
+    } else {
+      Fluttertoast.showToast(msg: "失败", backgroundColor: Colors.red);
+    }
+  }
+
   void fetchData() async {
     List data = await PhotoGalleryService.getList(reportType.url);
     if (!mounted) return;
@@ -197,14 +247,10 @@ class _PhotoGalleryListState extends State<PhotoGalleryList>
             "parentLink": element.parentLink as String,
           });
         });
-        _detailDes = "N/A";
-        _detailTime = "N/A";
       });
     } else {
       setState(() {
         _detailData = [];
-        _detailDes = "Error";
-        _detailTime = "Error";
       });
     }
   }
