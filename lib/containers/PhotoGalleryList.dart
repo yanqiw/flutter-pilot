@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:extended_image/extended_image.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:foo/services/photoGallery.dart';
-import 'package:image_picker_saver/image_picker_saver.dart';
+// import 'package:image_picker_saver/image_picker_saver.dart';
 
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
@@ -219,9 +219,10 @@ class _PhotoGalleryListState extends State<PhotoGalleryList>
 
   Future<bool> saveNetworkImageToPhoto(String url,
       {bool useCache: true}) async {
-    var data = await getNetworkImageData(url, useCache: useCache);
-    var filePath = await ImagePickerSaver.saveFile(fileData: data);
-    return filePath != null && filePath != "";
+    // var data = await getNetworkImageData(url, useCache: useCache);
+    // var filePath = await ImagePickerSaver.saveFile(fileData: data);
+    // return filePath != null && filePath != "";
+    return false;
   }
 
   void downloadDetail(url) async {

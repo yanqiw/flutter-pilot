@@ -52,5 +52,7 @@
 	<false/>
 	<key>io.flutter.embedded_views_preview</key>
 	<true/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Save network image to your libaray</string>
 </dict>
 </plist>
