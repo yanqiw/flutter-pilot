@@ -19,6 +19,11 @@
 ### 工具
 选择 VScode 作为开发工具，并安装 flutter 官方开发插件。
 
+JSON Mode 生成, 根目录运行
+```bash
+flutter pub run build_runner build --delete-conflicting-outputs
+```
+
 ### 依赖管理
 选择 Flutter 自带包管理工具。（PS：也没有别的好选择的。。。）同时，使用[清华大学的镜像源](https://link.zhihu.com/?target=https%3A//mirrors.tuna.tsinghua.edu.cn/flutter)解决网络慢的问题。
 

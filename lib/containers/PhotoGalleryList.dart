@@ -108,10 +108,12 @@ class _PhotoGalleryListState extends State<PhotoGalleryList>
 
   Widget _buildRow(item, BuildContext context, int index) {
     String key = item["key"] as String;
-    key = key.replaceFirst("resources/zhihu-images/", "");
+
     List<Widget> line = [];
 
+    key = key.replaceFirst("resources/zhihu-images/", "");
     line.add(Container(child: SectionTitle(title: "$key")));
+
     bool isImage = item["link"].indexOf(".jpg") > -1;
     bool isZhihuLink = item["zhihuLink"] != "";
     bool isAnswer = !isImage && (item["zhihuLink"].indexOf("answer") > -1);
@@ -241,12 +243,24 @@ class _PhotoGalleryListState extends State<PhotoGalleryList>
       setState(() {
         _detailData.clear();
         data.forEach((element) {
-          _detailData.add({
-            "key": element.key as String,
-            "link": element.link as String,
-            "zhihuLink": element.zhihuLink as String,
-            "parentLink": element.parentLink as String,
-          });
+          // if tag model, reformat model
+          if (isTag(element)) {
+            String tag = element.tag as String;
+            int total = element.total as int;
+            _detailData.add({
+              "key": tag + "[" + total.toString() + "]",
+              "link": element.imageRecords as String,
+              "zhihuLink": "",
+              "parentLink": "",
+            });
+          } else {
+            _detailData.add({
+              "key": element.key as String,
+              "link": element.link as String,
+              "zhihuLink": element.zhihuLink as String,
+              "parentLink": element.parentLink as String,
+            });
+          }
         });
       });
     } else {
@@ -265,6 +279,10 @@ class _PhotoGalleryListState extends State<PhotoGalleryList>
         _detailData[index]["count"] = data.length.toString();
       });
     }
+  }
+
+  bool isTag(item) {
+    return item.tag != null;
   }
 
   void _launchURL(url) async =>

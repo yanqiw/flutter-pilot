@@ -8,8 +8,18 @@ class Question {
   String link;
   String zhihuLink;
   String parentLink;
+  String tag; // gat
+  int total; // gat
+  String imageRecords;
 
-  Question({this.key, this.link, this.zhihuLink, this.parentLink});
+  Question(
+      {this.key,
+      this.link,
+      this.zhihuLink,
+      this.parentLink,
+      this.tag,
+      this.total,
+      this.imageRecords});
 
   factory Question.fromJson(Map<String, dynamic> json) =>
       _$QuestionFromJson(json);

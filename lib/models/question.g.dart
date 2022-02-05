@@ -12,6 +12,9 @@ Question _$QuestionFromJson(Map<String, dynamic> json) {
     link: json['link'] as String,
     zhihuLink: json['zhihuLink'] as String,
     parentLink: json['parentLink'] as String,
+    tag: json['tag'] as String,
+    total: json['total'] as int,
+    imageRecords: json['imageRecords'] as String,
   );
 }
 
@@ -20,4 +23,7 @@ Map<String, dynamic> _$QuestionToJson(Question instance) => <String, dynamic>{
       'link': instance.link,
       'zhihuLink': instance.zhihuLink,
       'parentLink': instance.parentLink,
+      'tag': instance.tag,
+      'total': instance.total,
+      'imageRecords': instance.imageRecords,
     };
