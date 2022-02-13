@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -14,10 +15,10 @@ class WebViewNavBar extends StatelessWidget {
     return BottomNavigationBar(
         items: [
           BottomNavigationBarItem(
-              icon: Icon(Icons.arrow_back), title: Text("返回")),
+              icon: Icon(Icons.arrow_back), label: "后退"),
           BottomNavigationBarItem(
-              icon: Icon(Icons.arrow_forward), title: Text("前进")),
-          BottomNavigationBarItem(icon: Icon(Icons.close), title: Text("关闭"))
+              icon: Icon(Icons.arrow_forward), label: "后退"),
+          BottomNavigationBarItem(icon: Icon(Icons.close), label: "关闭")
         ],
         onTap: (index) {
           switch (index) {

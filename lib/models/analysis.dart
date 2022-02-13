@@ -7,6 +7,7 @@ class Analysis {
   String description;
   String generateTime;
   List<Map> resultList;
+  List<Map> items;
 
   Analysis({this.description, this.generateTime, this.resultList});
 

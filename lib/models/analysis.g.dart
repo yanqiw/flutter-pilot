@@ -13,11 +13,13 @@ Analysis _$AnalysisFromJson(Map<String, dynamic> json) {
     resultList: (json['resultList'] as List)
         ?.map((e) => e as Map<String, dynamic>)
         ?.toList(),
-  );
+  )..items =
+      (json['items'] as List)?.map((e) => e as Map<String, dynamic>)?.toList();
 }
 
 Map<String, dynamic> _$AnalysisToJson(Analysis instance) => <String, dynamic>{
       'description': instance.description,
       'generateTime': instance.generateTime,
       'resultList': instance.resultList,
+      'items': instance.items,
     };

@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<!-- saved from url=(0059)http://www.qianyitian.com/demark-fund-flag.html?code=008321 -->
+<html data-redeviation-bs-uid="37801">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hope2</title>
+    <link rel="stylesheet" href="./Hope2_files/bulma-docs.min.css">
+    <link rel="stylesheet" href="./Hope2_files/bulma.css">
+    <link rel="shortcut icon" href="http://www.qianyitian.com/favicon.ico">
+    <script src="./Hope2_files/jquery.min.js"></script>
+    <script src="./Hope2_files/highstock.js"></script>
+    <script src="./Hope2_files/exporting.js"></script>
+    <script src="./Hope2_files/highcharts-zh_CN.js"></script>
+    <script src="./Hope2_files/drag-panes.js"></script>
+    <script src="./Hope2_files/indicators.js"></script>
+    <script src="./Hope2_files/ema.js"></script>
+    <script src="./Hope2_files/macd.js"></script>
+    <script src="./Hope2_files/pivot-points.js"></script>
+    <script type="text/javascript">
+        //var chart;
+        var path = window.document.location.href;
+        var code = path.split('?')[1].split('=')[1];
+        var flagLink = 'https://www.qianyitian.com/demark-backtrack/fund/' + code;
+        // flagLink = 'http://127.0.0.1:8003/demark-backtrack/fund/' + code;
+        // flagLink = 'http://127.0.0.1:8003/demark-backtrack/fund/' + code;
+        $(document).ready(function () {
+            post();
+        });
+
+        var profitOptions = {
+            chart: {
+                zoomType: null,
+                // pinchType: null
+            },
+            rangeSelector: {
+                selected: 5
+            },
+            title: {
+                text: '定投收益率比较'
+            },
+            yAxis: {
+                labels: {
+                    formatter: function () {
+                        return (this.value > 0 ? ' + ' : '') + this.value + '%';
+                    }
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 3,
+                    color: 'silver'
+                }]
+            },
+            plotOptions: {
+                series: {
+                    // compare: 'percent',
+                    showInNavigator: true,
+                    animation: {
+                        duration: 1500
+                    }
+                }
+            },
+            tooltip: {
+                pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b>%<br/>',
+                valueDecimals: 2,
+                followTouchMove: false,
+                split: true
+            },
+            series: [{
+                type: 'line',
+                name: "DeMark BS/BC 买入收益率",
+                data: [],
+                id: 'dataseries',
+                color: '#f18b43',
+                tooltip: {
+                    valueDecimals: 2
+                },
+                threshold: null
+            },
+            {
+                type: 'line',
+                name: "每日定投收益率",
+                data: [],
+                id: 'dataseries2',
+                color: '#71984d',
+                tooltip: {
+                    valueDecimals: 2
+                },
+                threshold: null
+            },
+            {
+                type: 'line',
+                name: "每周定投收益率",
+                data: [],
+                id: 'dataseries2',
+                color: '#063f9b',
+                tooltip: {
+                    valueDecimals: 2
+                },
+                threshold: null
+            },
+            {
+                type: 'line',
+                name: "每月定投收益率",
+                data: [],
+                id: 'dataseries2',
+                color: '#020a16',
+                tooltip: {
+                    valueDecimals: 2
+                },
+                threshold: null
+            }, {
+                type: 'line',
+                name: "DeMark BS 买入收益率",
+                data: [],
+                id: 'dataseries',
+                color: '#ef330c',
+                tooltip: {
+                    valueDecimals: 2
+                },
+                threshold: null
+            }]
+        };
+
+        var stockOptions = {
+            rangeSelector: {
+                selected: 4
+            },
+            title: {
+                text: ''
+            },
+            yAxis: [{
+                title: {
+                    text: '价格'
+                },
+                height: '100%',
+                resize: {
+                    enabled: true
+                },
+                plotLines: [{
+                    id: 'costPrice',
+                    value: 0,
+                    color: '#33AA11',
+                    dashStyle: 'shortdash',
+                    width: 2,
+                    label: {
+                        text: 'DeMark定投成本'
+                    }
+                }, {
+                    id: 'averagePrice',
+                    value: 0,
+                    color: '#DD2200',
+                    dashStyle: 'shortdash',
+                    width: 2,
+                    label: {
+                        text: '平均定投成本'
+                    }
+                }]
+            },
+            {
+                top: '75%',
+                height: '25%',
+                labels: {
+                    align: 'right',
+                    x: -3
+                },
+                offset: 0,
+                title: {
+                    text: 'MACD'
+                }
+            }
+            ],
+            xAxis: [{
+                title: {
+                    text: ''
+                },
+                plotLines: [{
+                    id: 'costPrice',
+                    value: 0,
+                    color: '#4469f1',
+                    dashStyle: 'ShortDot',
+                    width: 3,
+                    label: {
+                        text: '最大回撤'
+                    }
+                }, {
+                    id: 'averagePrice',
+                    value: 0,
+                    color: '#4469f1',
+                    dashStyle: 'ShortDot',
+                    width: 3,
+                    label: {
+                        text: '最大回撤'
+                    }
+                }]
+            }],
+            series: [{
+                type: 'line',
+                name: "stock name",
+                data: [],
+                id: 'dataseries',
+                tooltip: {
+                    valueDecimals: 2
+                }
+            },
+            {
+                type: 'flags',
+                data: null,
+                onSeries: 'dataseries',
+                shape: 'circlepin',
+                width: 16,
+                color: '#e97b25',
+                fillColor: '#e97b25',
+                style: { // text style
+                    color: 'white'
+                },
+                visible: $("#bsCheckbox").is(':checked')
+            }, {
+                type: 'flags',
+                data: null,
+                onSeries: 'dataseries',
+                shape: 'circlepin',
+                width: 16,
+                color: '#ef270d',
+                fillColor: '#ef270d',
+                style: { // text style
+                    color: 'white'
+                },
+                visible: $("#bcCheckbox").is(':checked')
+            }, {
+                type: 'flags',
+                data: null,
+                onSeries: 'dataseries',
+                shape: 'squarepin',
+                width: 16,
+                color: '#0def73',
+                fillColor: '#0def73',
+                style: { // text style
+                    color: 'white'
+                },
+                visible: $("#ssCheckbox").is(':checked')
+            }, {
+                type: 'flags',
+                data: null,
+                onSeries: 'dataseries',
+                shape: 'squarepin',
+                width: 16,
+                color: '#0a8ff1',
+                fillColor: '#0a8ff1',
+                style: { // text style
+                    color: 'white'
+                },
+                visible: $("#scCheckbox").is(':checked')
+            },
+            {
+                type: 'macd',
+                yAxis: 1,
+                linkedTo: 'dataseries',
+                color: 'rgba(85,138,16,0.94)'
+            }]
+        };
+
+        function createProfitChart(data) {
+            profitOptions.series[0].data = data.profit1.profits;
+            profitOptions.series[1].data = data.profit2.profits;
+            profitOptions.series[2].data = data.profit3.profits;
+            profitOptions.series[3].data = data.profit4.profits;
+            profitOptions.series[4].data = data.profit5.profits;
+            // profitOptions.plotOptions.series.animation.duration=10000;
+            profitChart = Highcharts.stockChart('profit-container', profitOptions);
+            var v = profitOptions;
+        }
+
+
+        function post() {
+            var days = $("#days").val();
+            var linkNew = flagLink + '?days2Now=' + days;
+            getFlagsData(linkNew);
+        }
+
+        function createChart(data) {
+            var setupFlag = [];
+            var countdownFlag = [];
+            if (data.flag != null) {
+                for (var i = 0; i < data.flag.length; i++) {
+                    //准备setup 数据
+                    var setupObj = {};
+                    setupObj.x = data.flag[i].setup;
+                    setupObj.title = 'BS';
+                    setupObj.text = '(' + data.flag[i].setupNumber + 'T,Setup) ' + data.flag[i].setupDate;
+                    setupFlag.push(setupObj);
+                    //准备countdown 数据
+                    var countdownObj = {};
+                    countdownObj.x = data.flag[i].countdown;
+                    countdownObj.title = 'BC';
+                    countdownObj.text = '(' + data.flag[i].countdownNumber + 'T,Countdown) ' + data.flag[i].countdownDate;
+                    countdownFlag.push(countdownObj);
+                }
+            }
+            var sellSetupFlag = [];
+            var sellCountdownFlag = [];
+            if (data.flagSell != null) {
+                for (var i = 0; i < data.flagSell.length; i++) {
+                    //准备setup 数据
+                    var setupObj = {};
+                    setupObj.x = data.flagSell[i].setup;
+                    setupObj.title = 'SS';
+                    setupObj.text = '(' + data.flagSell[i].setupNumber + 'T,Setup) ' + data.flagSell[i].setupDate;
+                    sellSetupFlag.push(setupObj);
+                    //准备countdown 数据
+                    var countdownObj = {};
+                    countdownObj.x = data.flagSell[i].countdown;
+                    countdownObj.title = 'SC';
+                    countdownObj.text = '(' + data.flagSell[i].countdownNumber + 'T,Countdown) ' + data.flagSell[i].countdownDate;
+                    sellCountdownFlag.push(countdownObj);
+                }
+            }
+
+            stockOptions.title.text = data.name + ' ' + data.code;
+            stockOptions.series[0].name = data.name;
+            stockOptions.series[0].data = data.bars;
+
+            //flags
+            stockOptions.series[1].data = setupFlag;
+            stockOptions.series[2].data = countdownFlag;
+            stockOptions.series[3].data = sellSetupFlag;
+            stockOptions.series[4].data = sellCountdownFlag;
+
+            stockOptions.series[1].visible = $("#bsCheckbox").is(':checked');
+            stockOptions.series[2].visible = $("#bcCheckbox").is(':checked');
+            stockOptions.series[3].visible = $("#ssCheckbox").is(':checked');
+            stockOptions.series[4].visible = $("#scCheckbox").is(':checked');
+
+            //成本价格线
+            if (data.profit1 != null) {
+                stockOptions.yAxis[0].plotLines[0].value = data.profit1.averageCostPrice;
+                stockOptions.yAxis[0].plotLines[0].label.text = "DeMark定投成本价格" + data.profit1.averageCostPrice.toFixed(2) + "元";
+            }
+            if (data.profit2 != null) {
+                stockOptions.yAxis[0].plotLines[1].value = data.profit2.averageCostPrice;
+                stockOptions.yAxis[0].plotLines[1].label.text = "平均定投成本价格" + data.profit2.averageCostPrice.toFixed(2) + "元";
+            }
+
+            {
+                stockOptions.xAxis[0].plotLines[0].value = data.maxBackdrawStartPoint;
+                stockOptions.xAxis[0].plotLines[0].label.text = "最大回撤" + data.maxBackdraw;
+
+                stockOptions.xAxis[0].plotLines[1].value = data.maxBackdrawEndPoint;
+                stockOptions.xAxis[0].plotLines[1].label.text = "最大回撤" + data.maxBackdraw;
+
+            }
+
+            // stockOptions.plotOptions.series.animation.duration=10000;
+            chart = Highcharts.stockChart('container', stockOptions);
+        }
+
+        function getFlagsData(link) {
+            Highcharts.getJSON(link, function (data) {
+                createChart(data);
+                createProfitChart(data);
+            });
+        }
+
+        function checkboxOnclick(checkboxId, selected) {
+            if (checkboxId == 'bsCheckbox') {
+                chart.series[1].setVisible(selected);
+            } else if (checkboxId == 'bcCheckbox') {
+                chart.series[2].setVisible(selected);
+            } else if (checkboxId == 'ssCheckbox') {
+                chart.series[3].setVisible(selected);
+            } else if (checkboxId == 'scCheckbox') {
+                chart.series[4].setVisible(selected);
+            }
+        }
+    </script>
+</head>
+
+
+<body class="layout-default">
+    <nav id="navbar" class="bd-navbar navbar has-shadow is-spaced">
+        <div class="container">
+            <div class="navbar-brand">
+                <a class="navbar-item" href="https://qianyitian.com/">
+                    <img style="height:36px;width:36px;" src="https://img.qianyitian.com/icon/logo.png">
+                    <h4 class="title is-3">Hope2</h4>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-3">
+                    <div class="field">
+                        <label class="label">计算最近多少天的数据</label>
+                        <div class="control">
+                            <input id="days" class="input" type="text" name="days" value="300">
+                        </div>
+                    </div>
+                    <div class="field is-grouped">
+                        <div class="control">
+                            <button class="button is-link" onclick="post()">Submit</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="column is-1">
+                </div>
+                <div class="column is-2">
+                    <div class="field-body">
+                        <div class="field">
+                            <div class="control">
+                                <label class="checkbox">
+                                    <input id="bsCheckbox" type="checkbox" checked=“checked”
+                                        onclick="checkboxOnclick('bsCheckbox',this.checked)">
+                                    Buy-Setup 九天揽月
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <div class="control">
+                                <label class="checkbox">
+                                    <input id="bcCheckbox" type="checkbox" checked=“checked”
+                                        onclick="checkboxOnclick('bcCheckbox',this.checked)">
+                                    Buy-Countdown 十三太保
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field-body">
+                        <div class="field">
+                            <div class="control">
+                                <label class="checkbox">
+                                    <input id="ssCheckbox" type="checkbox"
+                                        onclick="checkboxOnclick('ssCheckbox',this.checked)">
+                                    Sell-Setup 九九归天
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <div class="control">
+                                <label class="checkbox">
+                                    <input id="scCheckbox" type="checkbox"
+                                        onclick="checkboxOnclick('scCheckbox',this.checked)">
+                                    Sell-Countdown 十三惊魂
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="column is-1">
+                </div>
+
+            </div>
+        </div>
+    </section>
+    <hr>
+    <section class="section">
+        <div class="container">
+            <div id="container" style="min-width:400px;height:600px"></div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div id="profit-container" style="min-width:400px;height:400px"></div>
+        </div>
+    </section>
+
+    <hr>
+    <!-- <script src="https://unpkg.com/vconsole@latest/dist/vconsole.min.js"></script>
+    <script>
+        // VConsole will be exported to `window.VConsole` by default.
+        var vConsole = new window.VConsole();
+    </script> -->
+</body>
+
+</html>

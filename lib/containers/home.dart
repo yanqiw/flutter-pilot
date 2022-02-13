@@ -11,6 +11,7 @@ import '../models/menu.dart';
 import './ReportDetail.dart';
 import './BackTracking.dart';
 import './DeMarkReport.dart';
+import './DduReport.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -134,6 +135,11 @@ class _HomeState extends State<Home> {
       case "DeMarkReport":
         Navigator.push(context, MaterialPageRoute(builder: (context) {
           return new DeMarkReport(reportType: reportType);
+        }));
+        break;
+      case "DduReport":
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return new DduReport(reportType: reportType);
         }));
         break;
       case "PhotoGallery":

@@ -12,17 +12,16 @@ import '../models/analysis.dart';
 import '../models/menu.dart';
 import '../services/analysis.dart';
 
-class DeMarkReport extends StatefulWidget {
+class DduReport extends StatefulWidget {
   final Menu reportType;
 
-  DeMarkReport({this.reportType});
+  DduReport({this.reportType});
 
   @override
-  _DeMarkReportState createState() =>
-      _DeMarkReportState(reportType: reportType);
+  _DduReportState createState() => _DduReportState(reportType: reportType);
 }
 
-class _DeMarkReportState extends State<DeMarkReport>
+class _DduReportState extends State<DduReport>
     implements WebViewNavBarDelegate {
   final Menu reportType;
   final HttpClient httpClient = new HttpClient();
@@ -37,7 +36,7 @@ class _DeMarkReportState extends State<DeMarkReport>
 
   WebViewController controller;
 
-  _DeMarkReportState({this.reportType}) {
+  _DduReportState({this.reportType}) {
     fetchData();
   }
 
@@ -51,7 +50,7 @@ class _DeMarkReportState extends State<DeMarkReport>
         // );
         body: Column(children: [
           Container(height: WHITE_SPACE_L),
-          Expanded(child: _DeMarkReport(context)),
+          Expanded(child: _DduReport(context)),
           Divider(),
           Card(
             margin: EdgeInsets.all(WHITE_SPACE_S),
@@ -75,7 +74,7 @@ class _DeMarkReportState extends State<DeMarkReport>
         ]));
   }
 
-  Widget _DeMarkReport(BuildContext context) {
+  Widget _DduReport(BuildContext context) {
     return ListView.builder(
       itemCount: _detailData.length,
       itemBuilder: (context, i) {
@@ -92,24 +91,34 @@ class _DeMarkReportState extends State<DeMarkReport>
 
     line.add(Container(child: SectionTitle(title: "$name [${code.trim()}]")));
     line.add(Divider());
-    if (detail.length > 2) {
-      detail.removeRange(0, detail.length - 2);
-    }
-    detail.forEach((element) {
+    if(item["url"]=="ddu"){
       line.add(Row(children: [
         Text(
-            "BS: ${element["setup"] > 0 ? _formatter.format(DateTime.fromMillisecondsSinceEpoch(element["setup"])) : '未出现'} (${element['setupNumber']})",
-            style: TextStyle(
-                color: element['setupNumber'] >= 9
-                    ? Colors.redAccent
-                    : Colors.black),
+            "DDU5: ${detail[0]}",
             overflow: TextOverflow.clip,
             textAlign: TextAlign.start)
       ]));
       line.add(Row(children: [
         Text(
-            "BC: ${element["countdown"] > 0 ? _formatter.format(DateTime.fromMillisecondsSinceEpoch(element["countdown"])) : '未出现'} (${element['countdownNumber']})",
-            style: TextStyle(fontWeight: FontWeight.bold),
+            "DDU10: ${detail[1]}",
+            overflow: TextOverflow.clip,
+            textAlign: TextAlign.start)
+      ]));
+      line.add(Row(children: [
+        Text(
+            "DDU20: ${detail[2]}",
+            overflow: TextOverflow.clip,
+            textAlign: TextAlign.start)
+      ]));
+      line.add(Row(children: [
+        Text(
+            "DDU30: ${detail[3]}",
+            overflow: TextOverflow.clip,
+            textAlign: TextAlign.start)
+      ]));
+      line.add(Row(children: [
+        Text(
+            "DDU60: ${detail[4]}",
             overflow: TextOverflow.clip,
             textAlign: TextAlign.start)
       ]));
@@ -118,7 +127,50 @@ class _DeMarkReportState extends State<DeMarkReport>
           height: WHITE_SPACE_S,
         )
       ]));
-    });
+    }else{
+      detail = (item["data2"] as List);
+      line.add(Row(children: [
+        Text(
+            "RPS10: ${detail[0]}",
+            overflow: TextOverflow.clip,
+            textAlign: TextAlign.start)
+      ]));
+      line.add(Row(children: [
+        Text(
+            "RPS20: ${detail[1]}",
+            overflow: TextOverflow.clip,
+            textAlign: TextAlign.start)
+      ]));
+      line.add(Row(children: [
+        Text(
+            "RPS30: ${detail[2]}",
+            overflow: TextOverflow.clip,
+            textAlign: TextAlign.start)
+      ]));
+      line.add(Row(children: [
+        Text(
+            "RPS60: ${detail[3]}",
+            overflow: TextOverflow.clip,
+            textAlign: TextAlign.start)
+      ]));
+      line.add(Row(children: [
+        Text(
+            "RPS120: ${detail[4]}",
+            overflow: TextOverflow.clip,
+            textAlign: TextAlign.start)
+      ]));
+      line.add(Row(children: [
+        Text(
+            "RPS250: ${detail[5]}",
+            overflow: TextOverflow.clip,
+            textAlign: TextAlign.start)
+      ]));
+      line.add(Row(children: [
+        Container(
+          height: WHITE_SPACE_S,
+        )
+      ]));
+    }
 
     line.add(ButtonBar(children: [
       RaisedButton(
@@ -132,7 +184,7 @@ class _DeMarkReportState extends State<DeMarkReport>
                   body: Stack(children: [
                     WebView(
                       initialUrl:
-                          DEMARK_CHART_URL.replaceFirst(STOCK_NUM, code),
+                          DEMARK_FUND_CHART_URL.replaceFirst(STOCK_NUM, code),
                       javascriptMode: JavascriptMode.unrestricted,
                       onWebViewCreated: (WebViewController webViewController) {
                         controller = webViewController;
@@ -165,7 +217,7 @@ class _DeMarkReportState extends State<DeMarkReport>
             ));
           }),
       RaisedButton(
-          child: Text("复制股票代码"),
+          child: Text("复制基金代码"),
           onPressed: () {
             Clipboard.setData(ClipboardData(text: item['code']));
           })
@@ -186,33 +238,18 @@ class _DeMarkReportState extends State<DeMarkReport>
     if (data != null) {
       setState(() {
         _detailData.clear();
-        data.resultList.forEach((element) {
-          var flag = element["data"] != null ? element["data"]["flag"] : [];
-          // 去掉后端没有 flag 的垃圾数据
-          if (flag.length > 0) {
-            _detailData.add({
-              "msg": element["msg"] as String,
-              "name": element["name"] as String,
-              "code": element["code"] as String,
-              "url": element["url"] as String,
-              "data": flag,
-            });
-          }
+        data.items.forEach((element) {
+          _detailData.add({
+            "msg": element["msg"] as String,
+            "name": element["name"] as String,
+            "code": element["code"] as String,
+            "url": element["ddu5"] != null?"ddu":"rps",
+            "data":[element["ddu5"],element["ddu10"],element["ddu20"],element["ddu30"],element["ddu60"]],
+            "data2":[element["rps10"],element["rps20"],element["rps30"],element["rps60"],element["rps120"],element["rps250"]],
+          });
         });
 
-        _detailData.sort((left, right) {
-          if (left['data'] is List &&
-              right['data'] is List &&
-              (right['data'] as List).length > 0 &&
-              (left['data'] as List).length > 0) {
-            return (right['data'] as List)
-                .last["countdown"]
-                .compareTo((left['data'] as List).last["countdown"]);
-          } else {
-            return 1;
-          }
-        });
-        _detailDes = data.description;
+        _detailDes = data.description??"";
         _detailTime = data.generateTime;
       });
     } else {
