@@ -12,7 +12,7 @@ import '../models/analysis.dart';
 import '../models/menu.dart';
 import '../services/analysis.dart';
 
-enum DataType {ddu, rps, stock}
+enum DataType { ddu, rps, stock }
 
 class DduReport extends StatefulWidget {
   final Menu reportType;
@@ -21,7 +21,8 @@ class DduReport extends StatefulWidget {
   DduReport({this.reportType, this.dataType});
 
   @override
-  _DduReportState createState() => _DduReportState(reportType: reportType, dataType: dataType);
+  _DduReportState createState() =>
+      _DduReportState(reportType: reportType, dataType: dataType);
 }
 
 class _DduReportState extends State<DduReport>
@@ -95,87 +96,63 @@ class _DduReportState extends State<DduReport>
 
     line.add(Container(child: SectionTitle(title: "$name [${code.trim()}]")));
     line.add(Divider());
-    if(this.dataType == DataType.stock){
+    if (this.dataType == DataType.stock) {
       line.add(Row(children: [
-        Text(
-            "评分: ${item["total"]}",
-            overflow: TextOverflow.clip,
-            textAlign: TextAlign.start)
+        Text("评分: ${item["total"]}",
+            overflow: TextOverflow.clip, textAlign: TextAlign.start)
       ]));
-    }else if(this.dataType == DataType.ddu){
+    } else if (this.dataType == DataType.ddu) {
       detail = (item["dduData"] as List);
       line.add(Row(children: [
-        Text(
-            "DDU5: ${detail[0]}",
-            overflow: TextOverflow.clip,
-            textAlign: TextAlign.start)
+        Text("DDU5: ${detail[0]}",
+            overflow: TextOverflow.clip, textAlign: TextAlign.start)
       ]));
       line.add(Row(children: [
-        Text(
-            "DDU10: ${detail[1]}",
-            overflow: TextOverflow.clip,
-            textAlign: TextAlign.start)
+        Text("DDU10: ${detail[1]}",
+            overflow: TextOverflow.clip, textAlign: TextAlign.start)
       ]));
       line.add(Row(children: [
-        Text(
-            "DDU20: ${detail[2]}",
-            overflow: TextOverflow.clip,
-            textAlign: TextAlign.start)
+        Text("DDU20: ${detail[2]}",
+            overflow: TextOverflow.clip, textAlign: TextAlign.start)
       ]));
       line.add(Row(children: [
-        Text(
-            "DDU30: ${detail[3]}",
-            overflow: TextOverflow.clip,
-            textAlign: TextAlign.start)
+        Text("DDU30: ${detail[3]}",
+            overflow: TextOverflow.clip, textAlign: TextAlign.start)
       ]));
       line.add(Row(children: [
-        Text(
-            "DDU60: ${detail[4]}",
-            overflow: TextOverflow.clip,
-            textAlign: TextAlign.start)
+        Text("DDU60: ${detail[4]}",
+            overflow: TextOverflow.clip, textAlign: TextAlign.start)
       ]));
       line.add(Row(children: [
         Container(
           height: WHITE_SPACE_S,
         )
       ]));
-    }else{
+    } else {
       detail = (item["rpsData"] as List);
       line.add(Row(children: [
-        Text(
-            "RPS10: ${detail[0]}",
-            overflow: TextOverflow.clip,
-            textAlign: TextAlign.start)
+        Text("RPS10: ${detail[0]}",
+            overflow: TextOverflow.clip, textAlign: TextAlign.start)
       ]));
       line.add(Row(children: [
-        Text(
-            "RPS20: ${detail[1]}",
-            overflow: TextOverflow.clip,
-            textAlign: TextAlign.start)
+        Text("RPS20: ${detail[1]}",
+            overflow: TextOverflow.clip, textAlign: TextAlign.start)
       ]));
       line.add(Row(children: [
-        Text(
-            "RPS30: ${detail[2]}",
-            overflow: TextOverflow.clip,
-            textAlign: TextAlign.start)
+        Text("RPS30: ${detail[2]}",
+            overflow: TextOverflow.clip, textAlign: TextAlign.start)
       ]));
       line.add(Row(children: [
-        Text(
-            "RPS60: ${detail[3]}",
-            overflow: TextOverflow.clip,
-            textAlign: TextAlign.start)
+        Text("RPS60: ${detail[3]}",
+            overflow: TextOverflow.clip, textAlign: TextAlign.start)
       ]));
       line.add(Row(children: [
-        Text(
-            "RPS120: ${detail[4]}",
-            overflow: TextOverflow.clip,
-            textAlign: TextAlign.start)
+        Text("RPS120: ${detail[4]}",
+            overflow: TextOverflow.clip, textAlign: TextAlign.start)
       ]));
       line.add(Row(children: [
-        Text(
-            "RPS250: ${detail[5]}",
-            overflow: TextOverflow.clip,
-            textAlign: TextAlign.start)
+        Text("RPS250: ${detail[5]}",
+            overflow: TextOverflow.clip, textAlign: TextAlign.start)
       ]));
       line.add(Row(children: [
         Container(
@@ -195,8 +172,11 @@ class _DduReportState extends State<DduReport>
                   appBar: AppBar(title: Text("DeMark 回溯")),
                   body: Stack(children: [
                     WebView(
-                      initialUrl:
-                          DEMARK_FUND_CHART_URL.replaceFirst(STOCK_NUM, code),
+                      initialUrl: this.dataType == DataType.stock
+                          // || this.dataType == DataType.rps
+                          ? DEMARK_STOCK_MARK_CHART_URL.replaceFirst(
+                              STOCK_NUM, code)
+                          : DEMARK_FUND_CHART_URL.replaceFirst(STOCK_NUM, code),
                       javascriptMode: JavascriptMode.unrestricted,
                       onWebViewCreated: (WebViewController webViewController) {
                         controller = webViewController;
@@ -256,12 +236,25 @@ class _DduReportState extends State<DduReport>
             "name": element["name"] as String,
             "code": element["code"] as String,
             "total": element["total"] as int,
-            "dduData":[element["ddu5"],element["ddu10"],element["ddu20"],element["ddu30"],element["ddu60"]],
-            "rpsData":[element["rps10"],element["rps20"],element["rps30"],element["rps60"],element["rps120"],element["rps250"]],
+            "dduData": [
+              element["ddu5"],
+              element["ddu10"],
+              element["ddu20"],
+              element["ddu30"],
+              element["ddu60"]
+            ],
+            "rpsData": [
+              element["rps10"],
+              element["rps20"],
+              element["rps30"],
+              element["rps60"],
+              element["rps120"],
+              element["rps250"]
+            ],
           });
         });
 
-        _detailDes = data.description??"";
+        _detailDes = data.description ?? "";
         _detailTime = data.generateTime;
       });
     } else {

@@ -8,8 +8,12 @@ const PHOTO_GALLERY_DOWNLOAD_URL =
 // const DEMARK_CHART_URL = "$HOST/demark-flag.html?code=$STOCK_NUM";
 const DEMARK_CHART_URL =
     "http://127.0.0.1:8008/h5/deMarkDetail/Hope2.html?code=$STOCK_NUM";
+// const DEMARK_FUND_CHART_URL =
+// "http://127.0.0.1:8008/h5/deMarkDetail/Hope2Fund.html?code=$STOCK_NUM";
 const DEMARK_FUND_CHART_URL =
-    "http://127.0.0.1:8008/h5/deMarkDetail/Hope2Fund.html?code=$STOCK_NUM";
+    "https://www.qianyitian.com/demark-fund-flag.html?code=$STOCK_NUM";
+const DEMARK_STOCK_MARK_CHART_URL =
+    "https://www.qianyitian.com/demark-flag.html?code=$STOCK_NUM";
 const SEARCH_STOCK_URL =
     "http://www.qianyitian.com:8002/search?word=$STOCK_NUM";
 const MEMU_URL = "$HOST/menu.json";
@@ -25,7 +29,8 @@ const REPORT_TYPES = [
     "router": "RpsReport",
     "url": "/rps/fund_lite",
     "image": "https://s3.ax1x.com/2021/01/12/sYRCbq.png",
-    "description": "RPS指标衡量了某基金在过去一段时间，相对市场中其他基金的表现。市场内每只基金都被指定了0-100范围内的某一数值，100代表相对强度最高"
+    "description":
+        "RPS指标衡量了某基金在过去一段时间，相对市场中其他基金的表现。市场内每只基金都被指定了0-100范围内的某一数值，100代表相对强度最高"
   },
   {
     "id": 'stock-top',
