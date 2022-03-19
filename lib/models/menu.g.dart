@@ -9,7 +9,9 @@ part of 'menu.dart';
 Menu _$MenuFromJson(Map<String, dynamic> json) {
   return Menu(
     name: json['name'] as String,
-    group: json['group'] as String,
+    order: json['order'] as int,
+    group: json['group'] as int,
+    groupName: json['groupName'] as String,
     router: json['router'] as String,
     url: json['url'] as String,
     html: json['html'] as String,
@@ -23,7 +25,9 @@ Menu _$MenuFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$MenuToJson(Menu instance) => <String, dynamic>{
       'id': instance.id,
       'version': instance.version,
+      'order': instance.order,
       'group': instance.group,
+      'groupName': instance.groupName,
       'name': instance.name,
       'router': instance.router,
       'url': instance.url,

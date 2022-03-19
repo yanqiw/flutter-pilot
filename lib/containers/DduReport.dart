@@ -12,18 +12,22 @@ import '../models/analysis.dart';
 import '../models/menu.dart';
 import '../services/analysis.dart';
 
+enum DataType {ddu, rps, stock}
+
 class DduReport extends StatefulWidget {
   final Menu reportType;
+  final DataType dataType;
 
-  DduReport({this.reportType});
+  DduReport({this.reportType, this.dataType});
 
   @override
-  _DduReportState createState() => _DduReportState(reportType: reportType);
+  _DduReportState createState() => _DduReportState(reportType: reportType, dataType: dataType);
 }
 
 class _DduReportState extends State<DduReport>
     implements WebViewNavBarDelegate {
   final Menu reportType;
+  final DataType dataType;
   final HttpClient httpClient = new HttpClient();
 
   List<Map<String, dynamic>> _detailData = [];
@@ -36,7 +40,7 @@ class _DduReportState extends State<DduReport>
 
   WebViewController controller;
 
-  _DduReportState({this.reportType}) {
+  _DduReportState({this.reportType, this.dataType}) {
     fetchData();
   }
 
@@ -86,12 +90,20 @@ class _DduReportState extends State<DduReport>
   Widget _buildRow(item, BuildContext context) {
     String code = item["code"] as String;
     String name = item["name"] as String;
-    List<dynamic> detail = (item["data"] as List);
+    List<dynamic> detail;
     List<Widget> line = [];
 
     line.add(Container(child: SectionTitle(title: "$name [${code.trim()}]")));
     line.add(Divider());
-    if(item["url"]=="ddu"){
+    if(this.dataType == DataType.stock){
+      line.add(Row(children: [
+        Text(
+            "评分: ${item["total"]}",
+            overflow: TextOverflow.clip,
+            textAlign: TextAlign.start)
+      ]));
+    }else if(this.dataType == DataType.ddu){
+      detail = (item["dduData"] as List);
       line.add(Row(children: [
         Text(
             "DDU5: ${detail[0]}",
@@ -128,7 +140,7 @@ class _DduReportState extends State<DduReport>
         )
       ]));
     }else{
-      detail = (item["data2"] as List);
+      detail = (item["rpsData"] as List);
       line.add(Row(children: [
         Text(
             "RPS10: ${detail[0]}",
@@ -243,9 +255,9 @@ class _DduReportState extends State<DduReport>
             "msg": element["msg"] as String,
             "name": element["name"] as String,
             "code": element["code"] as String,
-            "url": element["ddu5"] != null?"ddu":"rps",
-            "data":[element["ddu5"],element["ddu10"],element["ddu20"],element["ddu30"],element["ddu60"]],
-            "data2":[element["rps10"],element["rps20"],element["rps30"],element["rps60"],element["rps120"],element["rps250"]],
+            "total": element["total"] as int,
+            "dduData":[element["ddu5"],element["ddu10"],element["ddu20"],element["ddu30"],element["ddu60"]],
+            "rpsData":[element["rps10"],element["rps20"],element["rps30"],element["rps60"],element["rps120"],element["rps250"]],
           });
         });
 

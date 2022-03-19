@@ -68,11 +68,11 @@ class _HomeState extends State<Home> {
         return _buildRow(element, context);
       },
       groupBy: (element) => element.group,
-      groupSeparatorBuilder: (groupByValue) => Container(
+      groupHeaderBuilder: (groupItem) => Container(
         alignment: Alignment.center,
         padding: EdgeInsets.all(WHITE_SPACE_M),
         child: Text(
-          groupByValue,
+          groupItem.groupName,
           style: _biggerFont,
         ),
       ),
@@ -139,7 +139,17 @@ class _HomeState extends State<Home> {
         break;
       case "DduReport":
         Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return new DduReport(reportType: reportType);
+          return new DduReport(reportType: reportType, dataType: DataType.ddu);
+        }));
+        break;
+      case "RpsReport":
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return new DduReport(reportType: reportType, dataType: DataType.rps);
+        }));
+        break;
+      case "StockReport":
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return new DduReport(reportType: reportType, dataType: DataType.stock);
         }));
         break;
       case "PhotoGallery":

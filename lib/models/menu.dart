@@ -6,7 +6,9 @@ part 'menu.g.dart';
 class Menu {
   String id;
   int version;
-  String group;
+  int order;
+  int group;
+  String groupName;
   String name;
   String router;
   String url;
@@ -16,7 +18,9 @@ class Menu {
 
   Menu(
       {this.name,
+      this.order,
       this.group,
+      this.groupName,
       this.router,
       this.url,
       this.html,
